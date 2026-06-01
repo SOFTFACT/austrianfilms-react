@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Clapperboard, LogOut, Menu, X, type LucideIcon } from 'lucide-react'
+import { LayoutDashboard, Clapperboard, Award, Route as RouteIcon, LogOut, Menu, X, type LucideIcon } from 'lucide-react'
 import { useAuth } from '../contexts/useAuth'
 import { cn } from '../lib/utils'
 
@@ -14,6 +14,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/films', label: 'Films', icon: Clapperboard },
+  { to: '/festivals', label: 'Festivals', icon: Award },
+  { to: '/itineraries', label: 'Itineraries', icon: RouteIcon },
 ]
 
 function NavLinks({ onNavTap }: { onNavTap?: () => void }) {

@@ -4,6 +4,9 @@ import { Layout } from './components/Layout'
 import { LoginPage } from './components/LoginPage'
 import { FilmsListPage } from './components/FilmsListPage'
 import { FilmDetailPage } from './components/FilmDetailPage'
+import { FestivalsListPage } from './components/FestivalsListPage'
+import { FestivalDetailPage } from './components/FestivalDetailPage'
+import { ItinerariesListPage } from './components/ItinerariesListPage'
 
 function DashboardHome() {
   return (
@@ -11,7 +14,7 @@ function DashboardHome() {
       <div className="rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">Welcome to Austrian Films</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Pick a section on the left. Films is live; more areas follow.
+          Pick a section on the left: Films, Festivals or Itineraries.
         </p>
       </div>
     </div>
@@ -32,6 +35,9 @@ function App() {
         <Route path="/" element={<DashboardHome />} />
         <Route path="/films" element={<FilmsListPage />} />
         <Route path="/films/:id" element={<FilmDetailPage />} />
+        <Route path="/festivals" element={<FestivalsListPage />} />
+        <Route path="/festivals/:id" element={<FestivalDetailPage />} />
+        <Route path="/itineraries" element={<ItinerariesListPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

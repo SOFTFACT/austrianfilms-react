@@ -101,8 +101,9 @@ export function FilmsListPage() {
                   {f.englischerTitel && <div className="truncate text-xs text-slate-500">{f.englischerTitel}</div>}
                 </div>
                 <div className="w-16 shrink-0 text-right text-sm text-slate-500">{f.produktionsjahr || ''}</div>
-                <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 md:block">{f.regie}</div>
-                <div className="hidden w-32 shrink-0 truncate text-xs text-slate-400 lg:block">{f.genreText}</div>
+                <div className="hidden w-28 shrink-0 truncate text-xs text-slate-500 md:block">{f.filmgenre}</div>
+                <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 lg:block">{f.regie}</div>
+                <div className="hidden w-40 shrink-0 truncate text-xs text-slate-400 xl:block">{f.produktion}</div>
               </button>
             )}
           />
