@@ -33,16 +33,41 @@ function FilmCard({ f, onClick }: { f: Film; onClick: () => void }) {
   )
 }
 
+interface SortState {
+  field: string
+  order: 'asc' | 'desc'
+}
+
+function SortHeader({ label, field, sort, onSort, className }: { label: string; field: string; sort: SortState; onSort: (f: string) => void; className?: string }) {
+  const active = sort.field === field
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(field)}
+      className={cn('flex items-center gap-1 uppercase hover:text-slate-700', active && 'text-slate-700', className)}
+    >
+      <span className="truncate">{label}</span>
+      {active && <span aria-hidden>{sort.order === 'asc' ? '▲' : '▼'}</span>}
+    </button>
+  )
+}
+
 export function FilmsListPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [sort, setSort] = useState<SortState>({ field: 'produktionsjahr', order: 'desc' })
   const { filters, update, clear, activeCount } = useFilmFilters()
+
+  const toggleSort = (field: string) =>
+    setSort((s) => (s.field === field ? { field, order: s.order === 'asc' ? 'desc' : 'asc' } : { field, order: 'asc' }))
 
   const apiFilters: FilmFilters = {
     search: debouncedSearch || undefined,
+    sortField: sort.field,
+    sortOrder: sort.order,
     filmgenre: filters.filmgenre || undefined,
     production: filters.production || undefined,
     yearFrom: filters.yearFrom || undefined,
@@ -146,14 +171,14 @@ export function FilmsListPage() {
         ) : (
           <div>
             {/* Column header — mirrors /hq/films (Title · Year · Director · Production · Genre · Contact). */}
-            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold tracking-wide text-slate-400">
               <span className="w-16 shrink-0" />
-              <span className="min-w-0 flex-1">Title</span>
-              <span className="w-14 shrink-0 text-right">Year</span>
-              <span className="hidden w-36 shrink-0 md:block">Director</span>
-              <span className="hidden w-44 shrink-0 lg:block">Production</span>
-              <span className="hidden w-28 shrink-0 xl:block">Genre</span>
-              <span className="hidden w-28 shrink-0 2xl:block">Contact</span>
+              <SortHeader label="Title" field="titel" sort={sort} onSort={toggleSort} className="min-w-0 flex-1" />
+              <SortHeader label="Year" field="produktionsjahr" sort={sort} onSort={toggleSort} className="w-14 shrink-0 justify-end" />
+              <SortHeader label="Director" field="regie" sort={sort} onSort={toggleSort} className="hidden w-36 shrink-0 md:flex" />
+              <SortHeader label="Production" field="produktion" sort={sort} onSort={toggleSort} className="hidden w-44 shrink-0 lg:flex" />
+              <SortHeader label="Genre" field="filmgenre" sort={sort} onSort={toggleSort} className="hidden w-28 shrink-0 xl:flex" />
+              <SortHeader label="Contact" field="betreuung" sort={sort} onSort={toggleSort} className="hidden w-28 shrink-0 2xl:flex" />
             </div>
             <VirtualList<Film>
               items={items}
