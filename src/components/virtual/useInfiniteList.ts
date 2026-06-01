@@ -14,7 +14,9 @@ export interface PagedResult<T> {
     total: number
     page: number
     pages: number
-    hasNext: boolean
+    /** ecoline emits hasNext; AustrianFilms controllers do not -- the driver
+     *  falls back to page < pages. */
+    hasNext?: boolean
   }
 }
 
@@ -55,7 +57,12 @@ export function useInfiniteList<T>({
     queryKey,
     queryFn: ({ pageParam }) => fetchPage(pageParam),
     initialPageParam: 1,
-    getNextPageParam: (last) => (last.pagination.hasNext ? last.pagination.page + 1 : undefined),
+    getNextPageParam: (last) => {
+      const pg = last.pagination
+      // Prefer hasNext when present (ecoline); else derive from page < pages.
+      const more = pg.hasNext != null ? pg.hasNext : pg.page < pg.pages
+      return more ? pg.page + 1 : undefined
+    },
     enabled: enabled && !!getToken(),
     // Keep the previous result while a query-key change is in flight, so a
     // keystroke in the search box doesn't flip isLoading and unmount the
