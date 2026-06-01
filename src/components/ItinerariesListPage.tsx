@@ -117,14 +117,16 @@ export function ItinerariesListPage() {
           <div className="py-12 text-center text-sm text-slate-400">No itineraries found.</div>
         ) : (
           <div>
-            {/* Column order mirrors /hq/itineraries: Flag · Status · Film · Festival · From · To. */}
+            {/* Column order mirrors /hq/itineraries: Country · City · Festival · Film · From · To · Status · Section. */}
             <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              <span className="w-6 shrink-0" />
-              <span className="w-24 shrink-0">Status</span>
+              <span className="w-16 shrink-0">Country</span>
+              <span className="hidden w-32 shrink-0 lg:block">City</span>
+              <span className="hidden w-40 shrink-0 xl:block">Festival</span>
               <span className="min-w-0 flex-1">Film</span>
-              <span className="hidden w-56 shrink-0 md:block">Festival</span>
-              <span className="hidden w-24 shrink-0 text-right lg:block">From</span>
-              <span className="hidden w-24 shrink-0 text-right lg:block">To</span>
+              <span className="hidden w-24 shrink-0 text-right md:block">From</span>
+              <span className="hidden w-24 shrink-0 text-right md:block">To</span>
+              <span className="w-28 shrink-0">Status</span>
+              <span className="hidden w-24 shrink-0 2xl:block">Section</span>
             </div>
             <VirtualList<Itinerary>
               items={items}
@@ -135,21 +137,28 @@ export function ItinerariesListPage() {
               getItemKey={(i) => i.id}
               renderItem={(i) => (
                 <div className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3">
-                  <Flag code={i.countryCode} />
-                  <div className="w-24 shrink-0">
+                  <div className="flex w-16 shrink-0 items-center gap-1.5">
+                    <Flag code={i.countryCode} />
+                    <span className="text-xs uppercase text-slate-400">{i.countryCode}</span>
+                  </div>
+                  <div className="hidden w-32 shrink-0 truncate text-sm text-slate-500 lg:block">{i.city || i.ort}</div>
+                  <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 xl:block">{i.festivalname}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-slate-900">{i.film || '—'}</div>
+                    <div className="truncate text-xs text-slate-500 xl:hidden">
+                      {[i.city || i.ort, i.festivalname].filter(Boolean).join(' · ')}
+                    </div>
+                  </div>
+                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 md:block">{formatDate(i.von)}</div>
+                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 md:block">{formatDate(i.bis)}</div>
+                  <div className="w-28 shrink-0">
                     {i.statusExtern ? (
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${itineraryStatusClasses(i.statusExtern)}`}>
                         {i.statusExtern}
                       </span>
                     ) : null}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-slate-900">{i.film || '—'}</div>
-                    <div className="truncate text-xs text-slate-500 md:hidden">{i.festivalname}</div>
-                  </div>
-                  <div className="hidden w-56 shrink-0 truncate text-sm text-slate-500 md:block">{i.festivalname}</div>
-                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(i.von)}</div>
-                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(i.bis)}</div>
+                  <div className="hidden w-24 shrink-0 truncate text-xs text-slate-400 2xl:block">{i.sektion}</div>
                 </div>
               )}
             />
