@@ -144,29 +144,47 @@ export function FilmsListPage() {
             renderItem={(f) => <FilmCard f={f} onClick={() => navigate(`/films/${f.id}`)} />}
           />
         ) : (
-          <VirtualList<Film>
-            items={items}
-            estimateSize={64}
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            fetchNextPage={fetchNextPage}
-            getItemKey={(f) => f.id}
-            renderItem={(f) => (
-              <button
-                onClick={() => navigate(`/films/${f.id}`)}
-                className="flex h-16 w-full items-center gap-4 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-slate-900">{f.titel || '—'}</div>
-                  {f.englischerTitel && <div className="truncate text-xs text-slate-500">{f.englischerTitel}</div>}
-                </div>
-                <div className="w-16 shrink-0 text-right text-sm text-slate-500">{f.produktionsjahr || ''}</div>
-                <div className="hidden w-28 shrink-0 truncate text-xs text-slate-500 md:block">{f.filmgenre}</div>
-                <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 lg:block">{f.regie}</div>
-                <div className="hidden w-40 shrink-0 truncate text-xs text-slate-400 xl:block">{f.produktion}</div>
-              </button>
-            )}
-          />
+          <div>
+            {/* Column header — mirrors /hq/films (Title · Year · Director · Production · Genre · Contact). */}
+            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <span className="w-16 shrink-0" />
+              <span className="min-w-0 flex-1">Title</span>
+              <span className="w-14 shrink-0 text-right">Year</span>
+              <span className="hidden w-36 shrink-0 md:block">Director</span>
+              <span className="hidden w-44 shrink-0 lg:block">Production</span>
+              <span className="hidden w-28 shrink-0 xl:block">Genre</span>
+              <span className="hidden w-28 shrink-0 2xl:block">Contact</span>
+            </div>
+            <VirtualList<Film>
+              items={items}
+              estimateSize={64}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={fetchNextPage}
+              getItemKey={(f) => f.id}
+              renderItem={(f) => (
+                <button
+                  onClick={() => navigate(`/films/${f.id}`)}
+                  className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
+                >
+                  {f.imageUrl ? (
+                    <img src={f.imageUrl} alt="" loading="lazy" className="h-9 w-16 shrink-0 rounded object-cover" />
+                  ) : (
+                    <div className="h-9 w-16 shrink-0 rounded bg-slate-100" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-slate-900">{f.titel || '—'}</div>
+                    {f.englischerTitel && <div className="truncate text-xs text-slate-500">{f.englischerTitel}</div>}
+                  </div>
+                  <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.produktionsjahr || ''}</div>
+                  <div className="hidden w-36 shrink-0 truncate text-sm text-slate-500 md:block">{f.regie}</div>
+                  <div className="hidden w-44 shrink-0 truncate text-xs text-slate-500 lg:block">{f.produktion}</div>
+                  <div className="hidden w-28 shrink-0 truncate text-xs text-slate-500 xl:block">{f.filmgenre}</div>
+                  <div className="hidden w-28 shrink-0 truncate text-xs text-slate-400 2xl:block">{f.betreuung}</div>
+                </button>
+              )}
+            />
+          </div>
         )}
       </div>
     </div>
