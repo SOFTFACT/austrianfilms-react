@@ -17,9 +17,9 @@ function FilmCard({ f, onClick }: { f: Film; onClick: () => void }) {
       className="group flex h-full w-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white text-left transition-shadow hover:shadow-md"
     >
       {f.imageUrl ? (
-        <img src={f.imageUrl} alt={f.titel} loading="lazy" className="aspect-[2/3] w-full object-cover" />
+        <img src={f.imageUrl} alt={f.titel} loading="lazy" className="h-36 w-full object-cover" />
       ) : (
-        <div className="flex aspect-[2/3] w-full items-center justify-center bg-slate-100 text-xs text-slate-400">
+        <div className="flex h-36 w-full items-center justify-center bg-slate-100 text-xs text-slate-400">
           No image
         </div>
       )}
@@ -133,8 +133,8 @@ export function FilmsListPage() {
         ) : viewMode === 'cards' ? (
           <VirtualGrid<Film>
             items={items}
-            estimateRowSize={320}
-            cardMinWidth={170}
+            estimateRowSize={224}
+            cardMinWidth={240}
             cardGap={16}
             rowClassName="pb-4"
             getItemKey={(f) => f.id}
