@@ -6,6 +6,7 @@ import { useFilmsInfinite } from '../hooks/useFilms'
 import { useFilmFilters } from '../hooks/useFilmFilters'
 import { useDebounce } from '../hooks/useDebounce'
 import { cn } from '../lib/utils'
+import { SortHeader, nextSort, type SortState } from './SortHeader'
 import type { Film, FilmFilters } from '../types/film'
 
 type ViewMode = 'cards' | 'list'
@@ -33,25 +34,6 @@ function FilmCard({ f, onClick }: { f: Film; onClick: () => void }) {
   )
 }
 
-interface SortState {
-  field: string
-  order: 'asc' | 'desc'
-}
-
-function SortHeader({ label, field, sort, onSort, className }: { label: string; field: string; sort: SortState; onSort: (f: string) => void; className?: string }) {
-  const active = sort.field === field
-  return (
-    <button
-      type="button"
-      onClick={() => onSort(field)}
-      className={cn('flex items-center gap-1 uppercase hover:text-slate-700', active && 'text-slate-700', className)}
-    >
-      <span className="truncate">{label}</span>
-      {active && <span aria-hidden>{sort.order === 'asc' ? '▲' : '▼'}</span>}
-    </button>
-  )
-}
-
 export function FilmsListPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
@@ -61,8 +43,7 @@ export function FilmsListPage() {
   const [sort, setSort] = useState<SortState>({ field: 'produktionsjahr', order: 'desc' })
   const { filters, update, clear, activeCount } = useFilmFilters()
 
-  const toggleSort = (field: string) =>
-    setSort((s) => (s.field === field ? { field, order: s.order === 'asc' ? 'desc' : 'asc' } : { field, order: 'asc' }))
+  const toggleSort = (field: string) => setSort((s) => nextSort(s, field))
 
   const apiFilters: FilmFilters = {
     search: debouncedSearch || undefined,

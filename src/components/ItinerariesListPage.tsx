@@ -7,6 +7,7 @@ import { useDebounce } from '../hooks/useDebounce'
 import { formatDate } from '../lib/format'
 import { Flag } from './Flag'
 import { NewItineraryModal } from './NewItineraryModal'
+import { SortHeader, nextSort, type SortState } from './SortHeader'
 import {
   ITINERARY_STATUSES,
   itineraryStatusClasses,
@@ -19,12 +20,14 @@ export function ItinerariesListPage() {
   const debouncedSearch = useDebounce(search, 300)
   const [showFilters, setShowFilters] = useState(false)
   const [showNew, setShowNew] = useState(false)
+  const [sort, setSort] = useState<SortState>({ field: 'von', order: 'desc' })
+  const toggleSort = (field: string) => setSort((s) => nextSort(s, field))
   const { filters, update, clear, activeCount } = useItineraryFilters()
 
   const apiFilters: ItineraryFilters = {
     search: debouncedSearch || undefined,
-    sortField: 'datum',
-    sortOrder: 'desc',
+    sortField: sort.field,
+    sortOrder: sort.order,
     status: filters.status || undefined,
     country: filters.country || undefined,
     dateField: filters.dateField || undefined,
@@ -118,15 +121,15 @@ export function ItinerariesListPage() {
         ) : (
           <div>
             {/* Column order mirrors /hq/itineraries: Country · City · Festival · Film · From · To · Status · Section. */}
-            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              <span className="w-16 shrink-0">Country</span>
-              <span className="hidden w-32 shrink-0 lg:block">City</span>
-              <span className="hidden w-40 shrink-0 xl:block">Festival</span>
-              <span className="min-w-0 flex-1">Film</span>
-              <span className="hidden w-24 shrink-0 text-right md:block">From</span>
-              <span className="hidden w-24 shrink-0 text-right md:block">To</span>
-              <span className="w-28 shrink-0">Status</span>
-              <span className="hidden w-24 shrink-0 2xl:block">Section</span>
+            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold tracking-wide text-slate-400">
+              <span className="w-16 shrink-0 uppercase">Country</span>
+              <SortHeader label="City" field="city" sort={sort} onSort={toggleSort} className="hidden w-32 shrink-0 lg:flex" />
+              <SortHeader label="Festival" field="festivalname" sort={sort} onSort={toggleSort} className="hidden w-40 shrink-0 xl:flex" />
+              <SortHeader label="Film" field="film" sort={sort} onSort={toggleSort} className="min-w-0 flex-1" />
+              <SortHeader label="From" field="von" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 justify-end md:flex" />
+              <SortHeader label="To" field="bis" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 justify-end md:flex" />
+              <SortHeader label="Status" field="statusExtern" sort={sort} onSort={toggleSort} className="w-28 shrink-0" />
+              <SortHeader label="Section" field="sektion" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 2xl:flex" />
             </div>
             <VirtualList<Itinerary>
               items={items}

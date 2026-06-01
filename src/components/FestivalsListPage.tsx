@@ -6,17 +6,20 @@ import { useFestivalsInfinite } from '../hooks/useFestivals'
 import { useDebounce } from '../hooks/useDebounce'
 import { formatDate } from '../lib/format'
 import { Flag } from './Flag'
+import { SortHeader, nextSort, type SortState } from './SortHeader'
 import { festivalRatingLabel, type Festival, type FestivalFilters } from '../types/festival'
 
 export function FestivalsListPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
+  const [sort, setSort] = useState<SortState>({ field: 'jahr', order: 'desc' })
+  const toggleSort = (field: string) => setSort((s) => nextSort(s, field))
 
   const apiFilters: FestivalFilters = {
     search: debouncedSearch || undefined,
-    sortField: 'jahr',
-    sortOrder: 'desc',
+    sortField: sort.field,
+    sortOrder: sort.order,
   }
 
   const { items, total, isLoading, error, hasNextPage, isFetchingNextPage, fetchNextPage } =
@@ -52,14 +55,14 @@ export function FestivalsListPage() {
         ) : (
           <div>
             {/* Column order mirrors /hq/festivals: Flag · City · Festival · Year · From · To · Rating. */}
-            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              <span className="w-16 shrink-0">Country</span>
-              <span className="hidden w-40 shrink-0 md:block">City</span>
-              <span className="min-w-0 flex-1">Festival</span>
-              <span className="w-14 shrink-0 text-right">Year</span>
-              <span className="hidden w-24 shrink-0 text-right lg:block">From</span>
-              <span className="hidden w-24 shrink-0 text-right lg:block">To</span>
-              <span className="hidden w-20 shrink-0 xl:block">Rating</span>
+            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold tracking-wide text-slate-400">
+              <span className="w-16 shrink-0 uppercase">Country</span>
+              <SortHeader label="City" field="ort" sort={sort} onSort={toggleSort} className="hidden w-40 shrink-0 md:flex" />
+              <SortHeader label="Festival" field="festival" sort={sort} onSort={toggleSort} className="min-w-0 flex-1" />
+              <SortHeader label="Year" field="jahr" sort={sort} onSort={toggleSort} className="w-14 shrink-0 justify-end" />
+              <SortHeader label="From" field="von" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 justify-end lg:flex" />
+              <SortHeader label="To" field="bis" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 justify-end lg:flex" />
+              <SortHeader label="Rating" field="rating" sort={sort} onSort={toggleSort} className="hidden w-20 shrink-0 xl:flex" />
             </div>
             <VirtualList<Festival>
               items={items}
