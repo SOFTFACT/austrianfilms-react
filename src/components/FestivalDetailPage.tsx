@@ -38,7 +38,18 @@ export function FestivalDetailPage() {
               <dl>
                 <Field label="City" value={f.ort} />
                 <Field label="Country" value={f.land || f.countryCode} />
-                <Field label="Rating" value={festivalRatingLabel(f.rating)} />
+                <Field
+                  label="Rating"
+                  value={
+                    f.rating ? (
+                      <span className="text-amber-500" title={festivalRatingLabel(f.rating)}>
+                        {'★'.repeat(Math.min(f.rating, 5))}
+                      </span>
+                    ) : (
+                      ''
+                    )
+                  }
+                />
                 <Field label="From" value={formatDate(f.von)} />
                 <Field label="To" value={formatDate(f.bis)} />
                 <Field label="Year" value={f.jahr || ''} />

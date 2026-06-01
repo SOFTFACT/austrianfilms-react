@@ -87,10 +87,10 @@ export function FestivalsListPage() {
                   <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.jahr || ''}</div>
                   <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.von)}</div>
                   <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.bis)}</div>
-                  <div className="hidden w-20 shrink-0 xl:block">
+                  <div className="hidden w-20 shrink-0 text-sm xl:block">
                     {f.rating ? (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                        {festivalRatingLabel(f.rating)}
+                      <span className="text-amber-500" title={festivalRatingLabel(f.rating)}>
+                        {'★'.repeat(Math.min(f.rating, 5))}
                       </span>
                     ) : null}
                   </div>
