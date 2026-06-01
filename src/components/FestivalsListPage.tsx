@@ -53,7 +53,7 @@ export function FestivalsListPage() {
           <div>
             {/* Column order mirrors /hq/festivals: Flag · City · Festival · Year · From · To · Rating. */}
             <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              <span className="w-6 shrink-0" />
+              <span className="w-16 shrink-0">Country</span>
               <span className="hidden w-40 shrink-0 md:block">City</span>
               <span className="min-w-0 flex-1">Festival</span>
               <span className="w-14 shrink-0 text-right">Year</span>
@@ -73,7 +73,10 @@ export function FestivalsListPage() {
                   onClick={() => navigate(`/festivals/${f.id}`)}
                   className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
                 >
-                  <Flag code={f.countryCode} />
+                  <div className="flex w-16 shrink-0 items-center gap-1.5">
+                    <Flag code={f.countryCode} />
+                    <span className="text-xs uppercase text-slate-400">{f.countryCode}</span>
+                  </div>
                   <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 md:block">{f.ort}</div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium text-slate-900">{f.festival || '—'}</div>
