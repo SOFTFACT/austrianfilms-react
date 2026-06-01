@@ -50,39 +50,51 @@ export function FestivalsListPage() {
         ) : items.length === 0 ? (
           <div className="py-12 text-center text-sm text-slate-400">No festivals found.</div>
         ) : (
-          <VirtualList<Festival>
-            items={items}
-            estimateSize={64}
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            fetchNextPage={fetchNextPage}
-            getItemKey={(f) => f.id}
-            renderItem={(f) => (
-              <button
-                onClick={() => navigate(`/festivals/${f.id}`)}
-                className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
-              >
-                <Flag code={f.countryCode} />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-slate-900">{f.festival || '—'}</div>
-                  <div className="truncate text-xs text-slate-500">
-                    {[f.ort, f.land || f.countryCode].filter(Boolean).join(', ')}
+          <div>
+            {/* Column order mirrors /hq/festivals: Flag · City · Festival · Year · From · To · Rating. */}
+            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <span className="w-6 shrink-0" />
+              <span className="hidden w-40 shrink-0 md:block">City</span>
+              <span className="min-w-0 flex-1">Festival</span>
+              <span className="w-14 shrink-0 text-right">Year</span>
+              <span className="hidden w-24 shrink-0 text-right lg:block">From</span>
+              <span className="hidden w-24 shrink-0 text-right lg:block">To</span>
+              <span className="hidden w-20 shrink-0 xl:block">Rating</span>
+            </div>
+            <VirtualList<Festival>
+              items={items}
+              estimateSize={64}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={fetchNextPage}
+              getItemKey={(f) => f.id}
+              renderItem={(f) => (
+                <button
+                  onClick={() => navigate(`/festivals/${f.id}`)}
+                  className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
+                >
+                  <Flag code={f.countryCode} />
+                  <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 md:block">{f.ort}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-slate-900">{f.festival || '—'}</div>
+                    <div className="truncate text-xs text-slate-500 md:hidden">
+                      {[f.ort, f.land || f.countryCode].filter(Boolean).join(', ')}
+                    </div>
                   </div>
-                </div>
-                <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.jahr || ''}</div>
-                <div className="hidden w-44 shrink-0 text-right text-xs text-slate-400 md:block">
-                  {formatDate(f.von)}{f.bis ? ` – ${formatDate(f.bis)}` : ''}
-                </div>
-                <div className="hidden w-20 shrink-0 lg:block">
-                  {f.rating ? (
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                      {festivalRatingLabel(f.rating)}
-                    </span>
-                  ) : null}
-                </div>
-              </button>
-            )}
-          />
+                  <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.jahr || ''}</div>
+                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.von)}</div>
+                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.bis)}</div>
+                  <div className="hidden w-20 shrink-0 xl:block">
+                    {f.rating ? (
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                        {festivalRatingLabel(f.rating)}
+                      </span>
+                    ) : null}
+                  </div>
+                </button>
+              )}
+            />
+          </div>
         )}
       </div>
     </div>

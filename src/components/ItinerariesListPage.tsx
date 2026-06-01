@@ -116,36 +116,44 @@ export function ItinerariesListPage() {
         ) : items.length === 0 ? (
           <div className="py-12 text-center text-sm text-slate-400">No itineraries found.</div>
         ) : (
-          <VirtualList<Itinerary>
-            items={items}
-            estimateSize={64}
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            fetchNextPage={fetchNextPage}
-            getItemKey={(i) => i.id}
-            renderItem={(i) => (
-              <div className="flex h-16 w-full items-center gap-4 border-b border-slate-100 bg-white px-3">
-                <div className="w-24 shrink-0">
-                  {i.statusExtern ? (
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${itineraryStatusClasses(i.statusExtern)}`}>
-                      {i.statusExtern}
-                    </span>
-                  ) : null}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-slate-900">{i.film || '—'}</div>
-                  <div className="truncate text-xs text-slate-500">{i.festivalname}</div>
-                </div>
-                <div className="hidden w-44 shrink-0 text-right text-xs text-slate-400 md:block">
-                  {formatDate(i.von)}{i.bis ? ` – ${formatDate(i.bis)}` : ''}
-                </div>
-                <div className="hidden w-20 shrink-0 items-center justify-end gap-1.5 text-right text-xs text-slate-400 lg:flex">
+          <div>
+            {/* Column order mirrors /hq/itineraries: Flag · Status · Film · Festival · From · To. */}
+            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <span className="w-6 shrink-0" />
+              <span className="w-24 shrink-0">Status</span>
+              <span className="min-w-0 flex-1">Film</span>
+              <span className="hidden w-56 shrink-0 md:block">Festival</span>
+              <span className="hidden w-24 shrink-0 text-right lg:block">From</span>
+              <span className="hidden w-24 shrink-0 text-right lg:block">To</span>
+            </div>
+            <VirtualList<Itinerary>
+              items={items}
+              estimateSize={64}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={fetchNextPage}
+              getItemKey={(i) => i.id}
+              renderItem={(i) => (
+                <div className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3">
                   <Flag code={i.countryCode} />
-                  <span className="truncate">{i.land || i.countryCode}</span>
+                  <div className="w-24 shrink-0">
+                    {i.statusExtern ? (
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${itineraryStatusClasses(i.statusExtern)}`}>
+                        {i.statusExtern}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-slate-900">{i.film || '—'}</div>
+                    <div className="truncate text-xs text-slate-500 md:hidden">{i.festivalname}</div>
+                  </div>
+                  <div className="hidden w-56 shrink-0 truncate text-sm text-slate-500 md:block">{i.festivalname}</div>
+                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(i.von)}</div>
+                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(i.bis)}</div>
                 </div>
-              </div>
-            )}
-          />
+              )}
+            />
+          </div>
         )}
       </div>
       {showNew && <NewItineraryModal onClose={() => setShowNew(false)} />}
