@@ -33,3 +33,23 @@ export function getItineraries(filters: ItineraryFilters = {}): Promise<Paginate
   if (filters.premiereLocal) p.set('premiereLocal', 'true')
   return apiClient.get<Paginated<Itinerary>>(`/itineraries?${p.toString()}`)
 }
+
+/** Create an itinerary. Requires fk_film + fk_festival (UUIDs); other fields
+ *  optional. Returns the API envelope {success, data, message}. */
+export interface NewItineraryBody {
+  fk_film: string
+  fk_festival: string
+  statusExtern?: string
+  land?: string
+  von?: string
+  bis?: string
+  sektion?: string
+  submissionVia?: string
+  screeningFee?: string
+  notesPublic?: string
+  notesInternal?: string
+}
+
+export function createItinerary(body: NewItineraryBody): Promise<{ success: boolean; data?: Itinerary; message?: string }> {
+  return apiClient.post('/itineraries', body)
+}

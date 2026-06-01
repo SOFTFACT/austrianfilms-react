@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Search, Filter, X, Loader2 } from 'lucide-react'
+import { Search, Filter, X, Loader2, Plus } from 'lucide-react'
 import { VirtualList } from './virtual'
 import { useItinerariesInfinite } from '../hooks/useItineraries'
 import { useItineraryFilters } from '../hooks/useItineraryFilters'
 import { useDebounce } from '../hooks/useDebounce'
 import { formatDate } from '../lib/format'
 import { Flag } from './Flag'
+import { NewItineraryModal } from './NewItineraryModal'
 import {
   ITINERARY_STATUSES,
   itineraryStatusClasses,
@@ -17,6 +18,7 @@ export function ItinerariesListPage() {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [showFilters, setShowFilters] = useState(false)
+  const [showNew, setShowNew] = useState(false)
   const { filters, update, clear, activeCount } = useItineraryFilters()
 
   const apiFilters: ItineraryFilters = {
@@ -42,6 +44,12 @@ export function ItinerariesListPage() {
           <h1 className="text-lg font-semibold text-slate-900">Itineraries</h1>
           <span className="text-sm text-slate-500">{total.toLocaleString()} total</span>
           <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setShowNew(true)}
+              className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              <Plus className="h-4 w-4" /> New
+            </button>
             <div className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
               <input
@@ -140,6 +148,7 @@ export function ItinerariesListPage() {
           />
         )}
       </div>
+      {showNew && <NewItineraryModal onClose={() => setShowNew(false)} />}
     </div>
   )
 }
