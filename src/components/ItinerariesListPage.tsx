@@ -5,6 +5,7 @@ import { useItinerariesInfinite } from '../hooks/useItineraries'
 import { useItineraryFilters } from '../hooks/useItineraryFilters'
 import { useDebounce } from '../hooks/useDebounce'
 import { formatDate } from '../lib/format'
+import { Flag } from './Flag'
 import {
   ITINERARY_STATUSES,
   itineraryStatusClasses,
@@ -130,8 +131,9 @@ export function ItinerariesListPage() {
                 <div className="hidden w-44 shrink-0 text-right text-xs text-slate-400 md:block">
                   {formatDate(i.von)}{i.bis ? ` – ${formatDate(i.bis)}` : ''}
                 </div>
-                <div className="hidden w-16 shrink-0 text-right text-xs text-slate-400 lg:block">
-                  {i.land || i.countryCode}
+                <div className="hidden w-20 shrink-0 items-center justify-end gap-1.5 text-right text-xs text-slate-400 lg:flex">
+                  <Flag code={i.countryCode} />
+                  <span className="truncate">{i.land || i.countryCode}</span>
                 </div>
               </div>
             )}

@@ -5,6 +5,7 @@ import { VirtualList } from './virtual'
 import { useFestivalsInfinite } from '../hooks/useFestivals'
 import { useDebounce } from '../hooks/useDebounce'
 import { formatDate } from '../lib/format'
+import { Flag } from './Flag'
 import { festivalRatingLabel, type Festival, type FestivalFilters } from '../types/festival'
 
 export function FestivalsListPage() {
@@ -59,8 +60,9 @@ export function FestivalsListPage() {
             renderItem={(f) => (
               <button
                 onClick={() => navigate(`/festivals/${f.id}`)}
-                className="flex h-16 w-full items-center gap-4 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
+                className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
               >
+                <Flag code={f.countryCode} />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-slate-900">{f.festival || '—'}</div>
                   <div className="truncate text-xs text-slate-500">

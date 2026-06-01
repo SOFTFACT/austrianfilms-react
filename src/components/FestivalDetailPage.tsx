@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useFestival } from '../hooks/useFestivals'
 import { formatDate } from '../lib/format'
 import { festivalRatingLabel } from '../types/festival'
+import { Flag } from './Flag'
 
 function Field({ label, value }: { label: string; value: ReactNode }) {
   if (value === undefined || value === null || value === '') return null
@@ -33,6 +34,7 @@ export function FestivalDetailPage() {
         <div className="grid gap-6 md:grid-cols-[260px_1fr]">
           <div className="space-y-4">
             <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <Flag code={f.countryCode} className="mb-2 h-6 w-9 rounded-sm border border-slate-200 object-cover" />
               <dl>
                 <Field label="City" value={f.ort} />
                 <Field label="Country" value={f.land || f.countryCode} />

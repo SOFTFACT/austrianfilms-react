@@ -1,17 +1,44 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, X, Loader2 } from 'lucide-react'
-import { VirtualList } from './virtual'
+import { Search, Filter, X, Loader2, LayoutGrid, List as ListIcon } from 'lucide-react'
+import { VirtualList, VirtualGrid } from './virtual'
 import { useFilmsInfinite } from '../hooks/useFilms'
 import { useFilmFilters } from '../hooks/useFilmFilters'
 import { useDebounce } from '../hooks/useDebounce'
+import { cn } from '../lib/utils'
 import type { Film, FilmFilters } from '../types/film'
+
+type ViewMode = 'cards' | 'list'
+
+function FilmCard({ f, onClick }: { f: Film; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="group flex h-full w-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white text-left transition-shadow hover:shadow-md"
+    >
+      {f.imageUrl ? (
+        <img src={f.imageUrl} alt={f.titel} loading="lazy" className="aspect-[2/3] w-full object-cover" />
+      ) : (
+        <div className="flex aspect-[2/3] w-full items-center justify-center bg-slate-100 text-xs text-slate-400">
+          No image
+        </div>
+      )}
+      <div className="min-w-0 p-2">
+        <div className="truncate text-sm font-medium text-slate-900">{f.titel || '—'}</div>
+        <div className="truncate text-xs text-slate-500">
+          {[f.produktionsjahr || '', f.filmgenre].filter(Boolean).join(' · ')}
+        </div>
+      </div>
+    </button>
+  )
+}
 
 export function FilmsListPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [showFilters, setShowFilters] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
   const { filters, update, clear, activeCount } = useFilmFilters()
 
   const apiFilters: FilmFilters = {
@@ -33,13 +60,33 @@ export function FilmsListPage() {
           <h1 className="text-lg font-semibold text-slate-900">Films</h1>
           <span className="text-sm text-slate-500">{total.toLocaleString()} total</span>
           <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-1 py-1" aria-label="View">
+              <button
+                type="button"
+                onClick={() => setViewMode('cards')}
+                title="Card view"
+                aria-pressed={viewMode === 'cards'}
+                className={cn('rounded p-1.5', viewMode === 'cards' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-100')}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                title="List view"
+                aria-pressed={viewMode === 'list'}
+                className={cn('rounded p-1.5', viewMode === 'list' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-100')}
+              >
+                <ListIcon className="h-4 w-4" />
+              </button>
+            </div>
             <div className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search title…"
-                className="w-44 rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900 md:w-64"
+                className="w-40 rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900 md:w-56"
               />
             </div>
             <button
@@ -83,6 +130,19 @@ export function FilmsListPage() {
           </div>
         ) : items.length === 0 ? (
           <div className="py-12 text-center text-sm text-slate-400">No films found.</div>
+        ) : viewMode === 'cards' ? (
+          <VirtualGrid<Film>
+            items={items}
+            estimateRowSize={320}
+            cardMinWidth={170}
+            cardGap={16}
+            rowClassName="pb-4"
+            getItemKey={(f) => f.id}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+            renderItem={(f) => <FilmCard f={f} onClick={() => navigate(`/films/${f.id}`)} />}
+          />
         ) : (
           <VirtualList<Film>
             items={items}

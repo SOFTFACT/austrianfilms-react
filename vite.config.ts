@@ -20,6 +20,8 @@ export default defineConfig({
       '/mcp': { target: 'http://localhost:8181', changeOrigin: true },
       // Film/poster images are served by 4D at /getimage?type=film&id=...
       '/getimage': { target: 'http://localhost:8181', changeOrigin: true },
+      // Static country flag SVGs served from the 4D web root (WebFolder/flags).
+      '/flags': { target: 'http://localhost:8181', changeOrigin: true },
     },
   },
 })
