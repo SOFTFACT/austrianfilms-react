@@ -7,6 +7,8 @@ import { FilmDetailPage } from './components/FilmDetailPage'
 import { FestivalsListPage } from './components/FestivalsListPage'
 import { FestivalDetailPage } from './components/FestivalDetailPage'
 import { ItinerariesListPage } from './components/ItinerariesListPage'
+import { PersonsListPage } from './components/PersonsListPage'
+import { PersonDetailPage } from './components/PersonDetailPage'
 
 function DashboardHome() {
   return (
@@ -38,6 +40,8 @@ function App() {
         <Route path="/festivals" element={<FestivalsListPage />} />
         <Route path="/festivals/:id" element={<FestivalDetailPage />} />
         <Route path="/itineraries" element={<ItinerariesListPage />} />
+        <Route path="/persons" element={<PersonsListPage />} />
+        <Route path="/persons/:id" element={<PersonDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
