@@ -5,11 +5,26 @@ import { VirtualList, VirtualGrid } from './virtual'
 import { useFilmsInfinite } from '../hooks/useFilms'
 import { useFilmFilters } from '../hooks/useFilmFilters'
 import { useDebounce } from '../hooks/useDebounce'
+import { fetchAllPages } from '../lib/fetchAllPages'
+import { type ExportColumn } from '../lib/exportTable'
+import { getFilms } from '../api/films'
 import { cn } from '../lib/utils'
+import { ExportMenu } from './ExportMenu'
 import { SortHeader, nextSort, type SortState } from './SortHeader'
 import type { Film, FilmFilters } from '../types/film'
 
 type ViewMode = 'cards' | 'list'
+
+/** CSV export columns — mirrors the /hq/films table. */
+const EXPORT_COLUMNS: ExportColumn<Film>[] = [
+  { header: 'Title', value: (f) => f.titel },
+  { header: 'English title', value: (f) => f.englischerTitel },
+  { header: 'Year', value: (f) => f.produktionsjahr || '' },
+  { header: 'Director', value: (f) => f.regie },
+  { header: 'Production', value: (f) => f.produktion },
+  { header: 'Genre', value: (f) => f.filmgenre },
+  { header: 'Contact', value: (f) => f.betreuung },
+]
 
 function FilmCard({ f, onClick }: { f: Film; onClick: () => void }) {
   return (
@@ -105,6 +120,16 @@ export function FilmsListPage() {
                 <span className="ml-1 rounded-full bg-slate-900 px-1.5 text-xs text-white">{activeCount}</span>
               )}
             </button>
+            <ExportMenu<Film>
+              filenameBase="films"
+              columns={EXPORT_COLUMNS}
+              loadRows={(onProgress) =>
+                fetchAllPages<Film>(
+                  (offset, limit) => getFilms({ ...apiFilters, offset, limit }),
+                  { onProgress: (n) => onProgress(n) },
+                ).then(({ rows, truncated }) => ({ rows, truncated }))
+              }
+            />
           </div>
         </div>
 

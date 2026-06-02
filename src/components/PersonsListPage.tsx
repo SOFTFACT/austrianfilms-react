@@ -4,10 +4,26 @@ import { Search, Loader2, LayoutGrid, List as ListIcon, UserRound } from 'lucide
 import { VirtualList, VirtualGrid } from './virtual'
 import { usePersonsInfinite } from '../hooks/usePersons'
 import { useDebounce } from '../hooks/useDebounce'
+import { fetchAllPages } from '../lib/fetchAllPages'
+import { type ExportColumn } from '../lib/exportTable'
+import { getPersons } from '../api/persons'
 import { cn } from '../lib/utils'
+import { ExportMenu } from './ExportMenu'
 import type { Person, PersonFilters } from '../types/person'
 
 type ViewMode = 'cards' | 'list'
+
+/** CSV export columns for the persons list. */
+const EXPORT_COLUMNS: ExportColumn<Person>[] = [
+  { header: 'Name', value: (p) => p.fullName },
+  { header: 'First name', value: (p) => p.vorname },
+  { header: 'Last name', value: (p) => p.nachname },
+  { header: 'Category', value: (p) => p.kategorie },
+  { header: 'Born', value: (p) => p.born_in },
+  { header: 'Born year', value: (p) => p.born_inYear || '' },
+  { header: 'Died', value: (p) => p.died_in },
+  { header: 'Website', value: (p) => p.website },
+]
 
 function Avatar({ p, size }: { p: Person; size: string }) {
   if (p.imageUrl) {
@@ -83,6 +99,16 @@ export function PersonsListPage() {
                 className="w-40 rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900 md:w-56"
               />
             </div>
+            <ExportMenu<Person>
+              filenameBase="persons"
+              columns={EXPORT_COLUMNS}
+              loadRows={(onProgress) =>
+                fetchAllPages<Person>(
+                  (offset, limit) => getPersons({ ...apiFilters, offset, limit }),
+                  { onProgress: (n) => onProgress(n) },
+                ).then(({ rows, truncated }) => ({ rows, truncated }))
+              }
+            />
           </div>
         </div>
       </div>

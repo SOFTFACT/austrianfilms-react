@@ -5,9 +5,26 @@ import { VirtualList } from './virtual'
 import { useFestivalsInfinite } from '../hooks/useFestivals'
 import { useDebounce } from '../hooks/useDebounce'
 import { formatDate } from '../lib/format'
+import { fetchAllPages } from '../lib/fetchAllPages'
+import { type ExportColumn } from '../lib/exportTable'
+import { getFestivals } from '../api/festivals'
 import { Flag } from './Flag'
+import { ExportMenu } from './ExportMenu'
 import { SortHeader, nextSort, type SortState } from './SortHeader'
 import { festivalRatingLabel, type Festival, type FestivalFilters } from '../types/festival'
+
+/** CSV export columns — mirrors the /hq/festivals table. */
+const EXPORT_COLUMNS: ExportColumn<Festival>[] = [
+  { header: 'Country', value: (f) => f.countryCode || f.land },
+  { header: 'City', value: (f) => f.ort },
+  { header: 'Festival', value: (f) => f.festival },
+  { header: 'Year', value: (f) => f.jahr || '' },
+  { header: 'From', value: (f) => formatDate(f.von) },
+  { header: 'To', value: (f) => formatDate(f.bis) },
+  { header: 'Rating', value: (f) => f.rating || '' },
+  { header: 'Email', value: (f) => f.emailMain },
+  { header: 'Website', value: (f) => f.websiteMain },
+]
 
 export function FestivalsListPage() {
   const navigate = useNavigate()
@@ -31,13 +48,25 @@ export function FestivalsListPage() {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-lg font-semibold text-slate-900">Festivals</h1>
           <span className="text-sm text-slate-500">{total.toLocaleString()} total</span>
-          <div className="ml-auto relative">
-            <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search festival, city, country…"
-              className="w-56 rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900 md:w-72"
+          <div className="ml-auto flex items-center gap-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search festival, city, country…"
+                className="w-56 rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900 md:w-72"
+              />
+            </div>
+            <ExportMenu<Festival>
+              filenameBase="festivals"
+              columns={EXPORT_COLUMNS}
+              loadRows={(onProgress) =>
+                fetchAllPages<Festival>(
+                  (offset, limit) => getFestivals({ ...apiFilters, offset, limit }),
+                  { onProgress: (n) => onProgress(n) },
+                ).then(({ rows, truncated }) => ({ rows, truncated }))
+              }
             />
           </div>
         </div>
