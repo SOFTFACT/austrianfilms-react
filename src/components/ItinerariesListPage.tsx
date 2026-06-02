@@ -1,19 +1,38 @@
 import { useState } from 'react'
-import { Search, Filter, X, Loader2, Plus } from 'lucide-react'
+import { Search, Filter, Loader2, Plus } from 'lucide-react'
 import { VirtualList } from './virtual'
 import { useItinerariesInfinite } from '../hooks/useItineraries'
 import { useItineraryFilters } from '../hooks/useItineraryFilters'
 import { useDebounce } from '../hooks/useDebounce'
 import { formatDate } from '../lib/format'
+import { fetchAllPages } from '../lib/fetchAllPages'
+import { type ExportColumn } from '../lib/exportTable'
+import { getItineraries } from '../api/itineraries'
 import { Flag } from './Flag'
 import { NewItineraryModal } from './NewItineraryModal'
+import { ItineraryFilterPanel } from './ItineraryFilterPanel'
+import { ExportMenu } from './ExportMenu'
 import { SortHeader, nextSort, type SortState } from './SortHeader'
 import {
-  ITINERARY_STATUSES,
   itineraryStatusClasses,
   type Itinerary,
   type ItineraryFilters,
 } from '../types/itinerary'
+
+/** CSV export columns — mirrors the visible table plus a few useful extras. */
+const EXPORT_COLUMNS: ExportColumn<Itinerary>[] = [
+  { header: 'Country', value: (i) => i.countryCode || i.land },
+  { header: 'City', value: (i) => i.city || i.ort },
+  { header: 'Festival', value: (i) => i.festivalname },
+  { header: 'Film', value: (i) => i.film },
+  { header: 'From', value: (i) => formatDate(i.von) },
+  { header: 'To', value: (i) => formatDate(i.bis) },
+  { header: 'Status', value: (i) => i.statusExtern },
+  { header: 'Section', value: (i) => i.sektion },
+  { header: 'Submission via', value: (i) => i.submissionVia },
+  { header: 'Premiere Intl', value: (i) => (i.premiereIntl ? 'yes' : '') },
+  { header: 'Premiere Local', value: (i) => (i.premiereLocal ? 'yes' : '') },
+]
 
 export function ItinerariesListPage() {
   const [search, setSearch] = useState('')
@@ -72,40 +91,27 @@ export function ItinerariesListPage() {
                 <span className="ml-1 rounded-full bg-slate-900 px-1.5 text-xs text-white">{activeCount}</span>
               )}
             </button>
+            <ExportMenu<Itinerary>
+              filenameBase="itineraries"
+              columns={EXPORT_COLUMNS}
+              loadRows={(onProgress) =>
+                fetchAllPages<Itinerary>(
+                  (offset, limit) => getItineraries({ ...apiFilters, offset, limit }),
+                  { onProgress: (n) => onProgress(n) },
+                ).then(({ rows, truncated }) => ({ rows, truncated }))
+              }
+            />
           </div>
         </div>
 
         {showFilters && (
-          <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-6">
-            <select value={filters.status} onChange={(e) => update('status', e.target.value)} className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm">
-              <option value="">All statuses</option>
-              {ITINERARY_STATUSES.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-            <input value={filters.country} onChange={(e) => update('country', e.target.value)} placeholder="Country code" className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
-            <select value={filters.dateField} onChange={(e) => update('dateField', e.target.value as typeof filters.dateField)} className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm">
-              <option value="">Date field…</option>
-              <option value="von">Festival from</option>
-              <option value="bis">Festival to</option>
-              <option value="deadline">Submission deadline</option>
-            </select>
-            <input type="date" value={filters.dateFrom} onChange={(e) => update('dateFrom', e.target.value)} className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
-            <input type="date" value={filters.dateTo} onChange={(e) => update('dateTo', e.target.value)} className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
-            <div className="flex items-center gap-3 text-sm text-slate-700">
-              <label className="flex items-center gap-1">
-                <input type="checkbox" checked={filters.premiereIntl} onChange={(e) => update('premiereIntl', e.target.checked)} /> Intl
-              </label>
-              <label className="flex items-center gap-1">
-                <input type="checkbox" checked={filters.premiereLocal} onChange={(e) => update('premiereLocal', e.target.checked)} /> Local
-              </label>
-            </div>
-            {activeCount > 0 && (
-              <button onClick={clear} className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900">
-                <X className="h-3.5 w-3.5" /> Clear
-              </button>
-            )}
-          </div>
+          <ItineraryFilterPanel
+            filters={filters}
+            update={update}
+            clear={clear}
+            activeCount={activeCount}
+            onClose={() => setShowFilters(false)}
+          />
         )}
       </div>
 
