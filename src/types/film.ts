@@ -62,6 +62,9 @@ export interface FilmFilters {
 
 /** Filter-panel box filters (all strings for the inputs). */
 export interface FilmBoxFilters {
+  /** Genre category: '' | '1' Fiction | '2' Documentary | '3' Hybrid. */
+  genre: '' | '1' | '2' | '3'
+  director: string
   filmgenre: string
   production: string
   yearFrom: string
@@ -70,9 +73,18 @@ export interface FilmBoxFilters {
 }
 
 export const EMPTY_FILM_BOX_FILTERS: FilmBoxFilters = {
+  genre: '',
+  director: '',
   filmgenre: '',
   production: '',
   yearFrom: '',
   yearTo: '',
   actualOnly: '',
 }
+
+/** Genre category vocabulary (FM_filme.genre numeric codes). */
+export const FILM_GENRES: { value: '1' | '2' | '3'; label: string }[] = [
+  { value: '1', label: 'Fiction' },
+  { value: '2', label: 'Documentary' },
+  { value: '3', label: 'Hybrid' },
+]

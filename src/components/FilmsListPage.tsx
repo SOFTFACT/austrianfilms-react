@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, X, Loader2, LayoutGrid, List as ListIcon } from 'lucide-react'
+import { Search, Filter, Loader2, LayoutGrid, List as ListIcon } from 'lucide-react'
 import { VirtualList, VirtualGrid } from './virtual'
 import { useFilmsInfinite } from '../hooks/useFilms'
 import { useFilmFilters } from '../hooks/useFilmFilters'
@@ -10,6 +10,7 @@ import { type ExportColumn } from '../lib/exportTable'
 import { getFilms } from '../api/films'
 import { cn } from '../lib/utils'
 import { ExportMenu } from './ExportMenu'
+import { FilmFilterPanel } from './FilmFilterPanel'
 import { SortHeader, nextSort, type SortState } from './SortHeader'
 import type { Film, FilmFilters } from '../types/film'
 
@@ -64,6 +65,8 @@ export function FilmsListPage() {
     search: debouncedSearch || undefined,
     sortField: sort.field,
     sortOrder: sort.order,
+    genre: filters.genre || undefined,
+    director: filters.director || undefined,
     filmgenre: filters.filmgenre || undefined,
     production: filters.production || undefined,
     yearFrom: filters.yearFrom || undefined,
@@ -134,21 +137,13 @@ export function FilmsListPage() {
         </div>
 
         {showFilters && (
-          <div className="mt-3 grid grid-cols-2 items-center gap-2 md:grid-cols-5">
-            <input value={filters.filmgenre} onChange={(e) => update('filmgenre', e.target.value)} placeholder="Genre" className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
-            <input value={filters.production} onChange={(e) => update('production', e.target.value)} placeholder="Production" className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
-            <input value={filters.yearFrom} onChange={(e) => update('yearFrom', e.target.value)} placeholder="Year from" className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
-            <input value={filters.yearTo} onChange={(e) => update('yearTo', e.target.value)} placeholder="Year to" className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
-            <label className="flex items-center gap-2 text-sm text-slate-700">
-              <input type="checkbox" checked={filters.actualOnly === 'true'} onChange={(e) => update('actualOnly', e.target.checked ? 'true' : '')} />
-              Current only
-            </label>
-            {activeCount > 0 && (
-              <button onClick={clear} className="col-span-2 flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900 md:col-span-1">
-                <X className="h-3.5 w-3.5" /> Clear
-              </button>
-            )}
-          </div>
+          <FilmFilterPanel
+            filters={filters}
+            update={update}
+            clear={clear}
+            activeCount={activeCount}
+            onClose={() => setShowFilters(false)}
+          />
         )}
       </div>
 
