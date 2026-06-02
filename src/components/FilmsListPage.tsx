@@ -156,7 +156,8 @@ export function FilmsListPage() {
               <span className="w-16 shrink-0" />
               <SortHeader label="Title" field="titel" sort={sort} onSort={toggleSort} className="min-w-0 flex-1" />
               <SortHeader label="Year" field="produktionsjahr" sort={sort} onSort={toggleSort} className="w-14 shrink-0 justify-end" />
-              <SortHeader label="Director" field="regie" sort={sort} onSort={toggleSort} className="hidden w-36 shrink-0 md:flex" />
+              {/* Director is relational/multi-valued (person_film_rel) — not server-sortable, so it's a static header like /hq/films. */}
+              <span className="hidden w-36 shrink-0 items-center uppercase md:flex">Director</span>
               <SortHeader label="Production" field="produktion" sort={sort} onSort={toggleSort} className="hidden w-44 shrink-0 lg:flex" />
               <SortHeader label="Genre" field="filmgenre" sort={sort} onSort={toggleSort} className="hidden w-28 shrink-0 xl:flex" />
               <SortHeader label="Contact" field="betreuung" sort={sort} onSort={toggleSort} className="hidden w-28 shrink-0 2xl:flex" />
