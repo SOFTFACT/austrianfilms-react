@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Deploy helper for the ecoline-react frontend.
+// Deploy helper for the austrianfilms-react backoffice.
 //
-// Topology: Caddy on a Windows machine serves the static build and proxies
-// /api + /mcp to the 4D server. The build is transferred MANUALLY via
-// TeamViewer file transfer into  C:\Caddy\ecoline-react  on that machine.
+// Topology: Caddy on the Windows prod box (app.af.softfact.com) serves the
+// static build and proxies /api + /mcp + /getimage to the 4D server on
+// localhost:8181. The build is transferred MANUALLY via TeamViewer/RDP file
+// transfer into  C:\Caddy\austrianfilms-react  on that machine.
 //
 // This script produces a clean build + a single zip (more reliable over
 // TeamViewer than a multi-file folder drag) and reveals it in Finder.
@@ -15,8 +16,8 @@ import path from 'node:path'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = path.join(ROOT, 'dist')
-const ZIP = path.join(ROOT, 'ecoline-react-dist.zip')
-const TARGET = 'C:\\Caddy\\ecoline-react'
+const ZIP = path.join(ROOT, 'austrianfilms-react-dist.zip')
+const TARGET = 'C:\\Caddy\\austrianfilms-react'
 
 function run(cmd, cwd = ROOT) {
   console.log(`\n› ${cmd}`)
@@ -35,7 +36,7 @@ if (!existsSync(path.join(DIST, 'index.html'))) {
 
 // 2. Zip the *contents* of dist/ (cd into it) so extraction yields
 //    index.html + assets/ at the top level, ready to drop into the target.
-run('zip -rq ../ecoline-react-dist.zip .', DIST)
+run('zip -rq ../austrianfilms-react-dist.zip .', DIST)
 
 // 3. Reveal the zip in Finder, selected and ready to drag into TeamViewer.
 run(`open -R "${ZIP}"`)

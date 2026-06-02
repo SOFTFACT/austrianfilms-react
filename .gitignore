@@ -1,7 +1,7 @@
 node_modules
 dist
 dist-ssr
-ecoline-react-dist.zip
+austrianfilms-react-dist.zip
 *.local
 .DS_Store
 
