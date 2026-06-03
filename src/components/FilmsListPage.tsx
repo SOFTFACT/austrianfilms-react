@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, Loader2, LayoutGrid, List as ListIcon } from 'lucide-react'
+import { Search, Filter, Loader2, LayoutGrid, List as ListIcon, Plus } from 'lucide-react'
 import { VirtualList, VirtualGrid } from './virtual'
 import { useFilmsInfinite } from '../hooks/useFilms'
 import { useFilmFilters } from '../hooks/useFilmFilters'
@@ -11,6 +11,7 @@ import { getFilms } from '../api/films'
 import { cn } from '../lib/utils'
 import { ExportMenu } from './ExportMenu'
 import { FilmFilterPanel } from './FilmFilterPanel'
+import { FilmFormModal } from './FilmFormModal'
 import { SortHeader, nextSort, type SortState } from './SortHeader'
 import type { Film, FilmFilters } from '../types/film'
 
@@ -55,6 +56,7 @@ export function FilmsListPage() {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [showFilters, setShowFilters] = useState(false)
+  const [showCreate, setShowCreate] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [sort, setSort] = useState<SortState>({ field: 'produktionsjahr', order: 'desc' })
   const { filters, update, clear, activeCount } = useFilmFilters()
@@ -84,6 +86,13 @@ export function FilmsListPage() {
           <h1 className="text-lg font-semibold text-slate-900">Films</h1>
           <span className="text-sm text-slate-500">{total.toLocaleString()} total</span>
           <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setShowCreate(true)}
+              className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              <Plus className="h-4 w-4" />
+              New film
+            </button>
             <div className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-1 py-1" aria-label="View">
               <button
                 type="button"
@@ -214,6 +223,8 @@ export function FilmsListPage() {
           </div>
         )}
       </div>
+
+      {showCreate && <FilmFormModal onClose={() => setShowCreate(false)} />}
     </div>
   )
 }
