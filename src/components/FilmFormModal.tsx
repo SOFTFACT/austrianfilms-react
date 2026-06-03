@@ -1,9 +1,7 @@
-import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { X, Loader2, ChevronDown } from 'lucide-react'
-import { createFilm, updateFilm, type FilmWriteBody } from '../api/films'
+import { useState } from 'react'
+import { useFilmForm, type FilmFormState } from '../hooks/useFilmForm'
 import { FILM_GENRES, type Film } from '../types/film'
-import type { ApiError } from '../api/client'
 import { cn } from '../lib/utils'
 
 /** Text/number field row used throughout the form. */
@@ -39,82 +37,15 @@ function FieldInput({
 }
 
 /**
- * Create/edit a film. Pass `film` to edit (PUT /fmfilms/:id), omit to create
- * (POST /fmfilms). Mirrors the field set of the legacy /hq film modal.
+ * Create/edit a film in a modal. Pass `film` to edit (PUT), omit to create
+ * (POST). The list's "New film" button uses the create form; in-place editing
+ * of an existing film happens on FilmDetailPage (edit mode), not here.
  */
 export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => void }) {
-  const qc = useQueryClient()
-  const isEdit = !!film
-
-  // Core fields
-  const [titel, setTitel] = useState(film?.titel ?? '')
-  const [englischerTitel, setEnglischerTitel] = useState(film?.englischerTitel ?? '')
-  const [produktionsjahr, setProduktionsjahr] = useState(
-    film?.produktionsjahr ? String(film.produktionsjahr) : '',
-  )
-  const [genre, setGenre] = useState(film?.genre ? String(film.genre) : '')
-  const [regie, setRegie] = useState(film?.regie ?? '')
-  const [produktion, setProduktion] = useState(film?.produktion ?? '')
-
-  // Additional details
+  const { form, set, submit, saving, error } = useFilmForm(film, onClose)
   const [showDetails, setShowDetails] = useState(false)
-  const [kategorie, setKategorie] = useState(film?.kategorie ?? '')
-  const [filmgenre, setFilmgenre] = useState(film?.filmgenre ?? '')
-  const [betreuung, setBetreuung] = useState(film?.betreuung ?? '')
-  const [minuten, setMinuten] = useState(film?.minuten ? String(film.minuten) : '')
-  const [format, setFormat] = useState(film?.format ?? '')
-  const [originalsprache, setOriginalsprache] = useState(film?.originalsprache ?? '')
-  const [weltvertrieb, setWeltvertrieb] = useState(film?.weltvertrieb ?? '')
-  const [filmwebsite, setFilmwebsite] = useState(film?.filmwebsite ?? '')
-  const [bemerkung, setBemerkung] = useState(film?.bemerkung ?? '')
-
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  async function submit() {
-    if (!titel.trim()) {
-      setError('Title is required.')
-      return
-    }
-    const year = Number(produktionsjahr)
-    if (!produktionsjahr || Number.isNaN(year) || year < 1900 || year > 2100) {
-      setError('Production year is required and must be between 1900 and 2100.')
-      return
-    }
-    setError(null)
-    setSaving(true)
-    try {
-      const body: FilmWriteBody = {
-        titel: titel.trim(),
-        produktionsjahr: year,
-        englischerTitel: englischerTitel || undefined,
-        genre: genre ? Number(genre) : undefined,
-        regie: regie || undefined,
-        produktion: produktion || undefined,
-        kategorie: kategorie || undefined,
-        filmgenre: filmgenre || undefined,
-        betreuung: betreuung || undefined,
-        minuten: minuten || undefined,
-        format: format || undefined,
-        originalsprache: originalsprache || undefined,
-        weltvertrieb: weltvertrieb || undefined,
-        filmwebsite: filmwebsite || undefined,
-        bemerkung: bemerkung || undefined,
-      }
-      if (isEdit) {
-        await updateFilm(film!.id, body)
-        await qc.invalidateQueries({ queryKey: ['film', film!.id] })
-      } else {
-        await createFilm(body)
-      }
-      await qc.invalidateQueries({ queryKey: ['films'] })
-      onClose()
-    } catch (err) {
-      setError((err as ApiError).detail || (err as ApiError).title || 'Failed to save film.')
-    } finally {
-      setSaving(false)
-    }
-  }
+  const isEdit = !!film
+  const f = (k: keyof FilmFormState) => (v: string) => set(k, v)
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
@@ -127,18 +58,18 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
         </div>
 
         <div className="space-y-3 px-5 py-4">
-          <FieldInput label="Title" value={titel} onChange={setTitel} required placeholder="Film title" />
+          <FieldInput label="Title" value={form.titel} onChange={f('titel')} required placeholder="Film title" />
           <FieldInput
             label="English title"
-            value={englischerTitel}
-            onChange={setEnglischerTitel}
+            value={form.englischerTitel}
+            onChange={f('englischerTitel')}
             placeholder="English title"
           />
           <div className="grid grid-cols-2 gap-3">
             <FieldInput
               label="Production year"
-              value={produktionsjahr}
-              onChange={setProduktionsjahr}
+              value={form.produktionsjahr}
+              onChange={f('produktionsjahr')}
               type="number"
               required
               placeholder="2024"
@@ -146,8 +77,8 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600">Genre</label>
               <select
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
+                value={form.genre}
+                onChange={(e) => set('genre', e.target.value)}
                 className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
               >
                 <option value="">—</option>
@@ -158,11 +89,11 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
                 ))}
               </select>
             </div>
-            <FieldInput label="Director" value={regie} onChange={setRegie} placeholder="Director name" />
+            <FieldInput label="Director" value={form.regie} onChange={f('regie')} placeholder="Director name" />
             <FieldInput
               label="Production company"
-              value={produktion}
-              onChange={setProduktion}
+              value={form.produktion}
+              onChange={f('produktion')}
               placeholder="Production company"
             />
           </div>
@@ -178,25 +109,25 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
           </button>
           {showDetails && (
             <div className="grid grid-cols-2 gap-3">
-              <FieldInput label="Category" value={kategorie} onChange={setKategorie} placeholder="e.g. Feature, Short" />
-              <FieldInput label="Film genre" value={filmgenre} onChange={setFilmgenre} placeholder="e.g. Drama" />
-              <FieldInput label="AFC contact" value={betreuung} onChange={setBetreuung} />
-              <FieldInput label="Duration (min)" value={minuten} onChange={setMinuten} type="number" placeholder="90" />
-              <FieldInput label="Format" value={format} onChange={setFormat} placeholder="e.g. DCP, 35mm" />
-              <FieldInput label="Original language" value={originalsprache} onChange={setOriginalsprache} />
-              <FieldInput label="World sales" value={weltvertrieb} onChange={setWeltvertrieb} />
+              <FieldInput label="Category" value={form.kategorie} onChange={f('kategorie')} placeholder="e.g. Feature, Short" />
+              <FieldInput label="Film genre" value={form.filmgenre} onChange={f('filmgenre')} placeholder="e.g. Drama" />
+              <FieldInput label="AFC contact" value={form.betreuung} onChange={f('betreuung')} />
+              <FieldInput label="Duration (min)" value={form.minuten} onChange={f('minuten')} type="number" placeholder="90" />
+              <FieldInput label="Format" value={form.format} onChange={f('format')} placeholder="e.g. DCP, 35mm" />
+              <FieldInput label="Original language" value={form.originalsprache} onChange={f('originalsprache')} />
+              <FieldInput label="World sales" value={form.weltvertrieb} onChange={f('weltvertrieb')} />
               <FieldInput
                 label="Film website"
-                value={filmwebsite}
-                onChange={setFilmwebsite}
+                value={form.filmwebsite}
+                onChange={f('filmwebsite')}
                 type="url"
                 placeholder="https://example.com"
               />
               <div className="col-span-2">
                 <label className="mb-1 block text-xs font-medium text-slate-600">Notes</label>
                 <textarea
-                  value={bemerkung}
-                  onChange={(e) => setBemerkung(e.target.value)}
+                  value={form.bemerkung}
+                  onChange={(e) => set('bemerkung', e.target.value)}
                   rows={3}
                   className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm outline-none focus:border-slate-900"
                 />
