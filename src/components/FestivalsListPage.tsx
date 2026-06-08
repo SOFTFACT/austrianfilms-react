@@ -1,17 +1,43 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Loader2 } from 'lucide-react'
+import { Search, Loader2, ChevronRight } from 'lucide-react'
 import { VirtualList } from './virtual'
 import { useFestivalsInfinite } from '../hooks/useFestivals'
 import { useDebounce } from '../hooks/useDebounce'
+import { useExpandableRows } from '../hooks/useExpandableRows'
 import { formatDate } from '../lib/format'
 import { fetchAllPages } from '../lib/fetchAllPages'
 import { type ExportColumn } from '../lib/exportTable'
 import { getFestivals } from '../api/festivals'
+import { cn } from '../lib/utils'
 import { Flag } from './Flag'
 import { ExportMenu } from './ExportMenu'
+import { RowInlineDetail, ExpandAllButton, type DetailField } from './RowInlineDetail'
 import { SortHeader, nextSort, type SortState } from './SortHeader'
 import { festivalRatingLabel, type Festival, type FestivalFilters } from '../types/festival'
+
+/** Expanded row-detail fields — mirrors the /hq/festivals tabulator row-detail. */
+function festivalDetailFields(f: Festival): DetailField[] {
+  const dates = [formatDate(f.von), formatDate(f.bis)].filter(Boolean).join(' – ')
+  return [
+    { label: 'Festival', value: f.festival },
+    { label: 'City', value: f.ort },
+    { label: 'Country', value: f.land || f.countryCode },
+    { label: 'Year', value: f.jahr || '' },
+    { label: 'Dates', value: dates },
+    {
+      label: 'Rating',
+      value: f.rating ? (
+        <span className="text-amber-500" title={festivalRatingLabel(f.rating)}>
+          {'★'.repeat(Math.min(f.rating, 5))}
+        </span>
+      ) : (
+        ''
+      ),
+    },
+    { label: 'ID', value: <span className="font-mono text-xs text-slate-400">{f.id}</span> },
+  ]
+}
 
 /** CSV export columns — mirrors the /hq/festivals table. */
 const EXPORT_COLUMNS: ExportColumn<Festival>[] = [
@@ -32,6 +58,7 @@ export function FestivalsListPage() {
   const debouncedSearch = useDebounce(search, 300)
   const [sort, setSort] = useState<SortState>({ field: 'jahr', order: 'desc' })
   const toggleSort = (field: string) => setSort((s) => nextSort(s, field))
+  const { isExpanded, toggle, expandAll, collapseAll } = useExpandableRows()
 
   const apiFilters: FestivalFilters = {
     search: debouncedSearch || undefined,
@@ -41,6 +68,9 @@ export function FestivalsListPage() {
 
   const { items, total, isLoading, error, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useFestivalsInfinite(apiFilters)
+
+  const allExpanded = items.length > 0 && items.every((f) => isExpanded(f.id))
+  const toggleAll = () => (allExpanded ? collapseAll() : expandAll(items.map((f) => f.id)))
 
   return (
     <div className="flex flex-col">
@@ -58,6 +88,7 @@ export function FestivalsListPage() {
                 className="w-56 rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900 md:w-72"
               />
             </div>
+            <ExpandAllButton allExpanded={allExpanded} onToggle={toggleAll} />
             <ExportMenu<Festival>
               filenameBase="festivals"
               columns={EXPORT_COLUMNS}
@@ -92,42 +123,70 @@ export function FestivalsListPage() {
               <SortHeader label="From" field="von" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 justify-end lg:flex" />
               <SortHeader label="To" field="bis" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 justify-end lg:flex" />
               <SortHeader label="Rating" field="rating" sort={sort} onSort={toggleSort} className="hidden w-20 shrink-0 xl:flex" />
+              <span className="w-5 shrink-0" />
             </div>
             <VirtualList<Festival>
               items={items}
               estimateSize={64}
+              variableHeight
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage}
               fetchNextPage={fetchNextPage}
               getItemKey={(f) => f.id}
-              renderItem={(f) => (
-                <button
-                  onClick={() => navigate(`/festivals/${f.id}`)}
-                  className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
-                >
-                  <div className="flex w-16 shrink-0 items-center gap-1.5">
-                    <Flag code={f.countryCode} />
-                    <span className="text-xs uppercase text-slate-400">{f.countryCode}</span>
-                  </div>
-                  <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 md:block">{f.ort}</div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-slate-900">{f.festival || '—'}</div>
-                    <div className="truncate text-xs text-slate-500 md:hidden">
-                      {[f.ort, f.land || f.countryCode].filter(Boolean).join(', ')}
+              renderItem={(f) => {
+                const exp = isExpanded(f.id)
+                return (
+                  <div>
+                    <div
+                      role="row"
+                      onClick={() => toggle(f.id)}
+                      aria-expanded={exp}
+                      className={cn(
+                        'flex h-16 w-full cursor-pointer items-center gap-3 border-b border-slate-100 px-3 text-left hover:bg-slate-50',
+                        exp ? 'bg-slate-50' : 'bg-white',
+                      )}
+                    >
+                      <div className="flex w-16 shrink-0 items-center gap-1.5">
+                        <Flag code={f.countryCode} />
+                        <span className="text-xs uppercase text-slate-400">{f.countryCode}</span>
+                      </div>
+                      <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 md:block">{f.ort}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-slate-900">{f.festival || '—'}</div>
+                        <div className="truncate text-xs text-slate-500 md:hidden">
+                          {[f.ort, f.land || f.countryCode].filter(Boolean).join(', ')}
+                        </div>
+                      </div>
+                      <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.jahr || ''}</div>
+                      <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.von)}</div>
+                      <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.bis)}</div>
+                      <div className="hidden w-20 shrink-0 text-sm xl:block">
+                        {f.rating ? (
+                          <span className="text-amber-500" title={festivalRatingLabel(f.rating)}>
+                            {'★'.repeat(Math.min(f.rating, 5))}
+                          </span>
+                        ) : null}
+                      </div>
+                      <ChevronRight className={cn('h-4 w-4 shrink-0 text-slate-300 transition-transform', exp && 'rotate-90')} />
                     </div>
+                    {exp && (
+                      <RowInlineDetail
+                        fields={festivalDetailFields(f)}
+                        actions={
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/festivals/${f.id}`)}
+                            className="rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
+                          >
+                            Open festival
+                          </button>
+                        }
+                        onClose={() => toggle(f.id)}
+                      />
+                    )}
                   </div>
-                  <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.jahr || ''}</div>
-                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.von)}</div>
-                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.bis)}</div>
-                  <div className="hidden w-20 shrink-0 text-sm xl:block">
-                    {f.rating ? (
-                      <span className="text-amber-500" title={festivalRatingLabel(f.rating)}>
-                        {'★'.repeat(Math.min(f.rating, 5))}
-                      </span>
-                    ) : null}
-                  </div>
-                </button>
-              )}
+                )
+              }}
             />
           </div>
         )}

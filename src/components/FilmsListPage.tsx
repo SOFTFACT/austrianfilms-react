@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, Loader2, LayoutGrid, List as ListIcon, Plus } from 'lucide-react'
+import { Search, Filter, Loader2, LayoutGrid, List as ListIcon, Plus, ChevronRight } from 'lucide-react'
 import { VirtualList, VirtualGrid } from './virtual'
 import { useFilmsInfinite } from '../hooks/useFilms'
 import { useFilmFilters } from '../hooks/useFilmFilters'
 import { useDebounce } from '../hooks/useDebounce'
+import { useExpandableRows } from '../hooks/useExpandableRows'
 import { fetchAllPages } from '../lib/fetchAllPages'
 import { type ExportColumn } from '../lib/exportTable'
 import { getFilms } from '../api/films'
@@ -12,10 +13,27 @@ import { cn } from '../lib/utils'
 import { ExportMenu } from './ExportMenu'
 import { FilmFilterPanel } from './FilmFilterPanel'
 import { FilmFormModal } from './FilmFormModal'
+import { RowInlineDetail, ExpandAllButton, type DetailField } from './RowInlineDetail'
 import { SortHeader, nextSort, type SortState } from './SortHeader'
 import type { Film, FilmFilters } from '../types/film'
 
 type ViewMode = 'cards' | 'list'
+
+/** Expanded row-detail fields — mirrors the /hq/films tabulator row-detail. */
+function filmDetailFields(f: Film): DetailField[] {
+  return [
+    { label: 'Title', value: f.titel },
+    { label: 'English title', value: f.englischerTitel },
+    { label: 'Year', value: f.produktionsjahr || '' },
+    { label: 'Director', value: f.regie },
+    { label: 'Production', value: f.produktion },
+    { label: 'Category', value: f.kategorie },
+    { label: 'Genre', value: f.filmgenre || f.genreText },
+    { label: 'Contact', value: f.betreuung },
+    { label: 'Source', value: f.sourceJART ? 'JART' : '' },
+    { label: 'ID', value: <span className="font-mono text-xs text-slate-400">{f.id}</span> },
+  ]
+}
 
 /** CSV export columns — mirrors the /hq/films table. */
 const EXPORT_COLUMNS: ExportColumn<Film>[] = [
@@ -60,6 +78,7 @@ export function FilmsListPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [sort, setSort] = useState<SortState>({ field: 'produktionsjahr', order: 'desc' })
   const { filters, update, clear, activeCount } = useFilmFilters()
+  const { isExpanded, toggle, expandAll, collapseAll } = useExpandableRows()
 
   const toggleSort = (field: string) => setSort((s) => nextSort(s, field))
 
@@ -78,6 +97,9 @@ export function FilmsListPage() {
 
   const { items, total, isLoading, error, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useFilmsInfinite(apiFilters)
+
+  const allExpanded = items.length > 0 && items.every((f) => isExpanded(f.id))
+  const toggleAll = () => (allExpanded ? collapseAll() : expandAll(items.map((f) => f.id)))
 
   return (
     <div className="flex flex-col">
@@ -132,6 +154,7 @@ export function FilmsListPage() {
                 <span className="ml-1 rounded-full bg-slate-900 px-1.5 text-xs text-white">{activeCount}</span>
               )}
             </button>
+            {viewMode === 'list' && <ExpandAllButton allExpanded={allExpanded} onToggle={toggleAll} />}
             <ExportMenu<Film>
               filenameBase="films"
               columns={EXPORT_COLUMNS}
@@ -190,35 +213,65 @@ export function FilmsListPage() {
               <SortHeader label="Production" field="produktion" sort={sort} onSort={toggleSort} className="hidden w-44 shrink-0 lg:flex" />
               <SortHeader label="Genre" field="filmgenre" sort={sort} onSort={toggleSort} className="hidden w-28 shrink-0 xl:flex" />
               <SortHeader label="Contact" field="betreuung" sort={sort} onSort={toggleSort} className="hidden w-28 shrink-0 2xl:flex" />
+              <span className="w-5 shrink-0" />
             </div>
             <VirtualList<Film>
               items={items}
               estimateSize={64}
+              variableHeight
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage}
               fetchNextPage={fetchNextPage}
               getItemKey={(f) => f.id}
-              renderItem={(f) => (
-                <button
-                  onClick={() => navigate(`/films/${f.id}`)}
-                  className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3 text-left hover:bg-slate-50"
-                >
-                  {f.imageUrl ? (
-                    <img src={f.imageUrl} alt="" loading="lazy" className="h-9 w-16 shrink-0 rounded object-cover" />
-                  ) : (
-                    <div className="h-9 w-16 shrink-0 rounded bg-slate-100" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-slate-900">{f.titel || '—'}</div>
-                    {f.englischerTitel && <div className="truncate text-xs text-slate-500">{f.englischerTitel}</div>}
+              renderItem={(f) => {
+                const exp = isExpanded(f.id)
+                return (
+                  <div>
+                    <div
+                      role="row"
+                      onClick={() => toggle(f.id)}
+                      aria-expanded={exp}
+                      className={cn(
+                        'flex h-16 w-full cursor-pointer items-center gap-3 border-b border-slate-100 px-3 text-left hover:bg-slate-50',
+                        exp ? 'bg-slate-50' : 'bg-white',
+                      )}
+                    >
+                      {f.imageUrl ? (
+                        <img src={f.imageUrl} alt="" loading="lazy" className="h-9 w-16 shrink-0 rounded object-cover" />
+                      ) : (
+                        <div className="h-9 w-16 shrink-0 rounded bg-slate-100" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-slate-900">{f.titel || '—'}</div>
+                        {f.englischerTitel && <div className="truncate text-xs text-slate-500">{f.englischerTitel}</div>}
+                      </div>
+                      <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.produktionsjahr || ''}</div>
+                      <div className="hidden w-36 shrink-0 truncate text-sm text-slate-500 md:block">{f.regie}</div>
+                      <div className="hidden w-44 shrink-0 truncate text-xs text-slate-500 lg:block">{f.produktion}</div>
+                      <div className="hidden w-28 shrink-0 truncate text-xs text-slate-500 xl:block">{f.filmgenre}</div>
+                      <div className="hidden w-28 shrink-0 truncate text-xs text-slate-400 2xl:block">{f.betreuung}</div>
+                      <ChevronRight className={cn('h-4 w-4 shrink-0 text-slate-300 transition-transform', exp && 'rotate-90')} />
+                    </div>
+                    {exp && (
+                      <RowInlineDetail
+                        imageUrl={f.imageUrl || undefined}
+                        imageAlt={f.titel}
+                        fields={filmDetailFields(f)}
+                        actions={
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/films/${f.id}`)}
+                            className="rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
+                          >
+                            Open film
+                          </button>
+                        }
+                        onClose={() => toggle(f.id)}
+                      />
+                    )}
                   </div>
-                  <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.produktionsjahr || ''}</div>
-                  <div className="hidden w-36 shrink-0 truncate text-sm text-slate-500 md:block">{f.regie}</div>
-                  <div className="hidden w-44 shrink-0 truncate text-xs text-slate-500 lg:block">{f.produktion}</div>
-                  <div className="hidden w-28 shrink-0 truncate text-xs text-slate-500 xl:block">{f.filmgenre}</div>
-                  <div className="hidden w-28 shrink-0 truncate text-xs text-slate-400 2xl:block">{f.betreuung}</div>
-                </button>
-              )}
+                )
+              }}
             />
           </div>
         )}

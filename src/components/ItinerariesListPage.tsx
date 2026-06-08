@@ -1,23 +1,55 @@
 import { useState } from 'react'
-import { Search, Filter, Loader2, Plus } from 'lucide-react'
+import { Search, Filter, Loader2, Plus, ChevronRight } from 'lucide-react'
 import { VirtualList } from './virtual'
 import { useItinerariesInfinite } from '../hooks/useItineraries'
 import { useItineraryFilters } from '../hooks/useItineraryFilters'
 import { useDebounce } from '../hooks/useDebounce'
+import { useExpandableRows } from '../hooks/useExpandableRows'
 import { formatDate } from '../lib/format'
 import { fetchAllPages } from '../lib/fetchAllPages'
 import { type ExportColumn } from '../lib/exportTable'
 import { getItineraries } from '../api/itineraries'
+import { cn } from '../lib/utils'
 import { Flag } from './Flag'
 import { NewItineraryModal } from './NewItineraryModal'
 import { ItineraryFilterPanel } from './ItineraryFilterPanel'
 import { ExportMenu } from './ExportMenu'
+import { RowInlineDetail, ExpandAllButton, type DetailField } from './RowInlineDetail'
 import { SortHeader, nextSort, type SortState } from './SortHeader'
 import {
   itineraryStatusClasses,
   type Itinerary,
   type ItineraryFilters,
 } from '../types/itinerary'
+
+/** Expanded row-detail fields — mirrors the /hq/itineraries tabulator row-detail. */
+function itineraryDetailFields(i: Itinerary): DetailField[] {
+  const dates = [formatDate(i.von), formatDate(i.bis)].filter(Boolean).join(' – ')
+  const fields: DetailField[] = [
+    { label: 'Festival', value: i.festivalname },
+    { label: 'Film', value: i.film },
+    { label: 'Country', value: i.land || i.countryCode },
+    { label: 'City', value: i.city || i.ort },
+    {
+      label: 'Status',
+      value: i.statusExtern ? (
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${itineraryStatusClasses(i.statusExtern)}`}>
+          {i.statusExtern}
+        </span>
+      ) : (
+        ''
+      ),
+    },
+    { label: 'Section', value: i.sektion },
+    { label: 'Dates', value: dates },
+    { label: 'Submission via', value: i.submissionVia },
+    { label: 'Screening fee', value: i.screeningFee ? `€${i.screeningFee}` : '' },
+    { label: 'Record date', value: i.datum ? formatDate(i.datum) : '' },
+    { label: 'ID', value: <span className="font-mono text-xs text-slate-400">{i.id}</span> },
+  ]
+  if (i.notesPublic) fields.push({ label: 'Notes', value: i.notesPublic, full: true })
+  return fields
+}
 
 /** CSV export columns — mirrors the visible table plus a few useful extras. */
 const EXPORT_COLUMNS: ExportColumn<Itinerary>[] = [
@@ -42,6 +74,7 @@ export function ItinerariesListPage() {
   const [sort, setSort] = useState<SortState>({ field: 'von', order: 'desc' })
   const toggleSort = (field: string) => setSort((s) => nextSort(s, field))
   const { filters, update, clear, activeCount } = useItineraryFilters()
+  const { isExpanded, toggle, expandAll, collapseAll } = useExpandableRows()
 
   const apiFilters: ItineraryFilters = {
     search: debouncedSearch || undefined,
@@ -58,6 +91,9 @@ export function ItinerariesListPage() {
 
   const { items, total, isLoading, error, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useItinerariesInfinite(apiFilters)
+
+  const allExpanded = items.length > 0 && items.every((i) => isExpanded(i.id))
+  const toggleAll = () => (allExpanded ? collapseAll() : expandAll(items.map((i) => i.id)))
 
   return (
     <div className="flex flex-col">
@@ -91,6 +127,7 @@ export function ItinerariesListPage() {
                 <span className="ml-1 rounded-full bg-slate-900 px-1.5 text-xs text-white">{activeCount}</span>
               )}
             </button>
+            <ExpandAllButton allExpanded={allExpanded} onToggle={toggleAll} />
             <ExportMenu<Itinerary>
               filenameBase="itineraries"
               columns={EXPORT_COLUMNS}
@@ -136,40 +173,59 @@ export function ItinerariesListPage() {
               <SortHeader label="To" field="bis" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 justify-end md:flex" />
               <SortHeader label="Status" field="statusExtern" sort={sort} onSort={toggleSort} className="w-28 shrink-0" />
               <SortHeader label="Section" field="sektion" sort={sort} onSort={toggleSort} className="hidden w-24 shrink-0 2xl:flex" />
+              <span className="w-5 shrink-0" />
             </div>
             <VirtualList<Itinerary>
               items={items}
               estimateSize={64}
+              variableHeight
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage}
               fetchNextPage={fetchNextPage}
               getItemKey={(i) => i.id}
-              renderItem={(i) => (
-                <div className="flex h-16 w-full items-center gap-3 border-b border-slate-100 bg-white px-3">
-                  <div className="flex w-16 shrink-0 items-center gap-1.5">
-                    <Flag code={i.countryCode} />
-                    <span className="text-xs uppercase text-slate-400">{i.countryCode}</span>
-                  </div>
-                  <div className="hidden w-32 shrink-0 truncate text-sm text-slate-500 lg:block">{i.city || i.ort}</div>
-                  <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 xl:block">{i.festivalname}</div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-slate-900">{i.film || '—'}</div>
-                    <div className="truncate text-xs text-slate-500 xl:hidden">
-                      {[i.city || i.ort, i.festivalname].filter(Boolean).join(' · ')}
+              renderItem={(i) => {
+                const exp = isExpanded(i.id)
+                return (
+                  <div>
+                    <div
+                      role="row"
+                      onClick={() => toggle(i.id)}
+                      aria-expanded={exp}
+                      className={cn(
+                        'flex h-16 w-full cursor-pointer items-center gap-3 border-b border-slate-100 px-3 hover:bg-slate-50',
+                        exp ? 'bg-slate-50' : 'bg-white',
+                      )}
+                    >
+                      <div className="flex w-16 shrink-0 items-center gap-1.5">
+                        <Flag code={i.countryCode} />
+                        <span className="text-xs uppercase text-slate-400">{i.countryCode}</span>
+                      </div>
+                      <div className="hidden w-32 shrink-0 truncate text-sm text-slate-500 lg:block">{i.city || i.ort}</div>
+                      <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 xl:block">{i.festivalname}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-slate-900">{i.film || '—'}</div>
+                        <div className="truncate text-xs text-slate-500 xl:hidden">
+                          {[i.city || i.ort, i.festivalname].filter(Boolean).join(' · ')}
+                        </div>
+                      </div>
+                      <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 md:block">{formatDate(i.von)}</div>
+                      <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 md:block">{formatDate(i.bis)}</div>
+                      <div className="w-28 shrink-0">
+                        {i.statusExtern ? (
+                          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${itineraryStatusClasses(i.statusExtern)}`}>
+                            {i.statusExtern}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="hidden w-24 shrink-0 truncate text-xs text-slate-400 2xl:block">{i.sektion}</div>
+                      <ChevronRight className={cn('h-4 w-4 shrink-0 text-slate-300 transition-transform', exp && 'rotate-90')} />
                     </div>
+                    {exp && (
+                      <RowInlineDetail fields={itineraryDetailFields(i)} onClose={() => toggle(i.id)} />
+                    )}
                   </div>
-                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 md:block">{formatDate(i.von)}</div>
-                  <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 md:block">{formatDate(i.bis)}</div>
-                  <div className="w-28 shrink-0">
-                    {i.statusExtern ? (
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${itineraryStatusClasses(i.statusExtern)}`}>
-                        {i.statusExtern}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="hidden w-24 shrink-0 truncate text-xs text-slate-400 2xl:block">{i.sektion}</div>
-                </div>
-              )}
+                )
+              }}
             />
           </div>
         )}
