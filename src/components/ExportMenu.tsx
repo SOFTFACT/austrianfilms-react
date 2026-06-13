@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { Download, Loader2, ChevronDown } from 'lucide-react'
-import { downloadCsv, type ExportColumn } from '../lib/exportTable'
+import { Download, Loader2, ChevronDown, FileSpreadsheet, FileText } from 'lucide-react'
+import { downloadCsv, downloadXlsx, downloadPdf, type ExportColumn } from '../lib/exportTable'
 
 interface ExportMenuProps<T> {
   /** Filename stem; a `-YYYY-MM-DD.csv` suffix is appended. */
@@ -31,20 +31,28 @@ export function ExportMenu<T>({ filenameBase, columns, loadRows, disabled }: Exp
     return () => document.removeEventListener('mousedown', onDoc)
   }, [open])
 
-  const exportCsv = async () => {
+  const runExport = async (format: 'csv' | 'xlsx' | 'pdf') => {
     setOpen(false)
     setBusy(true)
     setLoaded(0)
     try {
       const { rows, truncated } = await loadRows(setLoaded)
       const stamp = new Date().toISOString().slice(0, 10)
-      downloadCsv(`${filenameBase}-${stamp}.csv`, columns, rows)
+      const name = `${filenameBase}-${stamp}`
+      if (format === 'csv') {
+        downloadCsv(`${name}.csv`, columns, rows)
+      } else if (format === 'xlsx') {
+        await downloadXlsx(`${name}.xlsx`, columns, rows)
+      } else {
+        await downloadPdf(`${name}.pdf`, columns, rows, filenameBase)
+      }
       if (truncated) {
         alert(
           `Export capped at ${rows.length.toLocaleString()} rows. Narrow the filters for a complete export.`,
         )
       }
-    } catch {
+    } catch (e) {
+      console.error('[export]', format, e)
       alert('Export failed. Please try again.')
     } finally {
       setBusy(false)
@@ -65,10 +73,22 @@ export function ExportMenu<T>({ filenameBase, columns, loadRows, disabled }: Exp
       {open && (
         <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
           <button
-            onClick={exportCsv}
+            onClick={() => runExport('csv')}
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
           >
             <Download className="h-4 w-4 text-slate-400" /> Download CSV
+          </button>
+          <button
+            onClick={() => runExport('xlsx')}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-slate-400" /> Download Excel
+          </button>
+          <button
+            onClick={() => runExport('pdf')}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <FileText className="h-4 w-4 text-slate-400" /> Download PDF
           </button>
         </div>
       )}
