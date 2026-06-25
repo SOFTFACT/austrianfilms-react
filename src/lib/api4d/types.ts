@@ -36,13 +36,18 @@ export interface ProblemDetails {
 }
 
 /**
- * Minimal user shape returned by /auth/login. Hosts can extend with
- * role/availableRoles when they have role enforcement.
+ * User shape returned by /auth/login + /auth/me. id/username/role are the
+ * common core; email/groups are optional so hosts that need them (ECOline's
+ * RBAC nav-gating reads groups) get them typed, while hosts that don't simply
+ * leave them unset. Keep this a superset so the lib stays identical everywhere.
  */
 export interface AuthUser {
   id: string
   username: string
   role?: string
+  email?: string
+  /** Area groups for RBAC nav-gating (ECOline). Other hosts leave unset. */
+  groups?: { id?: number; name: string }[]
 }
 
 export interface LoginSuccess {

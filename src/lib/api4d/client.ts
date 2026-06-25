@@ -118,19 +118,22 @@ async function performRefresh(): Promise<string | null> {
 
 export async function apiFetch<T>(
   endpoint: string,
-  options: RequestInit = {},
+  options: RequestInit & { skipAuth?: boolean } = {},
 ): Promise<T> {
+  // skipAuth: for pre-session calls (login, verify-otp) — don't attach a Bearer
+  // and don't treat a 401 as an expired session (no silent refresh/forceLogout).
+  const { skipAuth, ...fetchOptions } = options
   const cfg = _getModuleConfig()
   const token = getStoredToken()
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string> | undefined),
+    ...(fetchOptions.headers as Record<string, string> | undefined),
   }
-  if (token) headers.Authorization = `Bearer ${token}`
+  if (!skipAuth && token) headers.Authorization = `Bearer ${token}`
 
   let res: Response
   try {
-    res = await fetch(`${cfg.apiBase}${endpoint}`, { ...options, headers })
+    res = await fetch(`${cfg.apiBase}${endpoint}`, { ...fetchOptions, headers })
   } catch (err: unknown) {
     const netErr = new NetworkError(
       err instanceof Error ? err.message : 'Server not available',
@@ -169,11 +172,18 @@ export async function apiFetch<T>(
   }
 
   // 401 → try silent refresh once, then retry. Failure path → forceLogout.
+  // skipAuth calls (login, verify-otp) are pre-session: a 401 is a normal
+  // "bad credentials / wrong code" answer, so surface it as an ApiError
+  // instead of refreshing + forcing a logout.
   if (res.status === 401) {
+    if (skipAuth) {
+      const p = (await res.json().catch(() => ({}))) as ProblemDetails
+      throw new ApiError(401, p)
+    }
     const fresh = await tryRefresh()
     if (fresh) {
       headers.Authorization = `Bearer ${fresh}`
-      const retry = await fetch(`${cfg.apiBase}${endpoint}`, { ...options, headers })
+      const retry = await fetch(`${cfg.apiBase}${endpoint}`, { ...fetchOptions, headers })
       if (!retry.ok) {
         const p = (await retry.json().catch(() => ({}))) as ProblemDetails
         throw new ApiError(retry.status, p)
