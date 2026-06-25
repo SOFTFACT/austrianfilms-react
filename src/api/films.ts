@@ -1,4 +1,4 @@
-import { apiClient } from './client'
+import { apiFetch } from '@/lib/api4d'
 import type { Film, FilmFilters, Paginated } from '../types/film'
 
 function toQuery(f: FilmFilters): string {
@@ -22,12 +22,12 @@ function toQuery(f: FilmFilters): string {
 }
 
 export function getFilms(filters: FilmFilters = {}): Promise<Paginated<Film>> {
-  return apiClient.get<Paginated<Film>>(`/fmfilms${toQuery(filters)}`)
+  return apiFetch<Paginated<Film>>(`/fmfilms${toQuery(filters)}`)
 }
 
 // Single resource: bare entity (no data wrapper). `id` = UUID.
 export function getFilm(id: string): Promise<Film> {
-  return apiClient.get<Film>(`/fmfilms/${id}`)
+  return apiFetch<Film>(`/fmfilms/${id}`)
 }
 
 /**
@@ -65,13 +65,13 @@ export interface FilmWriteResult {
 }
 
 export function createFilm(body: FilmWriteBody): Promise<FilmWriteResult> {
-  return apiClient.post<FilmWriteResult>('/fmfilms', body)
+  return apiFetch<FilmWriteResult>('/fmfilms', { method: 'POST', body: JSON.stringify(body) })
 }
 
 export function updateFilm(id: string, body: FilmWriteBody): Promise<FilmWriteResult> {
-  return apiClient.put<FilmWriteResult>(`/fmfilms/${id}`, body)
+  return apiFetch<FilmWriteResult>(`/fmfilms/${id}`, { method: 'PUT', body: JSON.stringify(body) })
 }
 
 export function deleteFilm(id: string): Promise<{ success: boolean; message?: string }> {
-  return apiClient.delete<{ success: boolean; message?: string }>(`/fmfilms/${id}`)
+  return apiFetch<{ success: boolean; message?: string }>(`/fmfilms/${id}`, { method: 'DELETE' })
 }

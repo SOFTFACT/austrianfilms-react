@@ -1,6 +1,6 @@
 import { useInfiniteQuery, type QueryKey } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { getToken } from '../../contexts/auth'
+import { getStoredToken } from '@/lib/api4d'
 
 /**
  * Page-shape every ECOline collection endpoint emits (cs.API4D.Response).
@@ -63,7 +63,7 @@ export function useInfiniteList<T>({
       const more = pg.hasNext != null ? pg.hasNext : pg.page < pg.pages
       return more ? pg.page + 1 : undefined
     },
-    enabled: enabled && !!getToken(),
+    enabled: enabled && !!getStoredToken(),
     // Keep the previous result while a query-key change is in flight, so a
     // keystroke in the search box doesn't flip isLoading and unmount the
     // input (focus loss). Doesn't affect fetchNextPage (appends pages).

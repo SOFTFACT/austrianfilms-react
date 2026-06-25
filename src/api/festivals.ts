@@ -1,4 +1,4 @@
-import { apiClient } from './client'
+import { apiFetch } from '@/lib/api4d'
 import type { Festival, FestivalFilters } from '../types/festival'
 import type { Paginated } from '../types/common'
 
@@ -13,15 +13,15 @@ export function getFestivals(filters: FestivalFilters = {}): Promise<Paginated<F
   // The /festivals list endpoint only allows limit/offset/sort; full-text
   // search has its own :search route (no sort params there).
   if (filters.search) {
-    return apiClient.get<Paginated<Festival>>(
+    return apiFetch<Paginated<Festival>>(
       `/festivals:search?q=${encodeURIComponent(filters.search)}&${p.toString()}`,
     )
   }
   if (filters.sortField) p.set('sortField', filters.sortField)
   if (filters.sortOrder) p.set('sortOrder', filters.sortOrder)
-  return apiClient.get<Paginated<Festival>>(`/festivals?${p.toString()}`)
+  return apiFetch<Paginated<Festival>>(`/festivals?${p.toString()}`)
 }
 
 export function getFestival(id: string): Promise<Festival> {
-  return apiClient.get<Festival>(`/festivals/${id}`)
+  return apiFetch<Festival>(`/festivals/${id}`)
 }

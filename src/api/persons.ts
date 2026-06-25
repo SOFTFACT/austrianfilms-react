@@ -1,4 +1,4 @@
-import { apiClient } from './client'
+import { apiFetch } from '@/lib/api4d'
 import type { Person, PersonFilters } from '../types/person'
 import type { Paginated } from '../types/common'
 
@@ -14,16 +14,16 @@ export function getPersons(filters: PersonFilters = {}): Promise<Paginated<Perso
   if (filters.search) {
     if (filters.sortField) p.set('sortField', filters.sortField)
     if (filters.sortOrder) p.set('sortOrder', filters.sortOrder)
-    return apiClient.get<Paginated<Person>>(
+    return apiFetch<Paginated<Person>>(
       `/persons:search?q=${encodeURIComponent(filters.search)}&${p.toString()}`,
     )
   }
   if (filters.sortField) p.set('sortField', filters.sortField)
   if (filters.sortOrder) p.set('sortOrder', filters.sortOrder)
   if (filters.category) p.set('category', filters.category)
-  return apiClient.get<Paginated<Person>>(`/persons?${p.toString()}`)
+  return apiFetch<Paginated<Person>>(`/persons?${p.toString()}`)
 }
 
 export function getPerson(id: string): Promise<Person> {
-  return apiClient.get<Person>(`/persons/${id}`)
+  return apiFetch<Person>(`/persons/${id}`)
 }

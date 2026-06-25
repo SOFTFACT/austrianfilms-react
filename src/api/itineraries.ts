@@ -1,4 +1,4 @@
-import { apiClient } from './client'
+import { apiFetch } from '@/lib/api4d'
 import type { Itinerary, ItineraryFilters } from '../types/itinerary'
 import type { Paginated } from '../types/common'
 
@@ -15,7 +15,7 @@ export function getItineraries(filters: ItineraryFilters = {}): Promise<Paginate
   if (filters.search) {
     if (filters.sortField) p.set('sortField', filters.sortField)
     if (filters.sortOrder) p.set('sortOrder', filters.sortOrder)
-    return apiClient.get<Paginated<Itinerary>>(
+    return apiFetch<Paginated<Itinerary>>(
       `/itineraries:search?q=${encodeURIComponent(filters.search)}&${p.toString()}`,
     )
   }
@@ -31,7 +31,7 @@ export function getItineraries(filters: ItineraryFilters = {}): Promise<Paginate
   }
   if (filters.premiereIntl) p.set('premiereIntl', 'true')
   if (filters.premiereLocal) p.set('premiereLocal', 'true')
-  return apiClient.get<Paginated<Itinerary>>(`/itineraries?${p.toString()}`)
+  return apiFetch<Paginated<Itinerary>>(`/itineraries?${p.toString()}`)
 }
 
 /** Create an itinerary. Requires fk_film + fk_festival (UUIDs); other fields
@@ -51,5 +51,8 @@ export interface NewItineraryBody {
 }
 
 export function createItinerary(body: NewItineraryBody): Promise<{ success: boolean; data?: Itinerary; message?: string }> {
-  return apiClient.post('/itineraries', body)
+  return apiFetch<{ success: boolean; data?: Itinerary; message?: string }>('/itineraries', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
 }

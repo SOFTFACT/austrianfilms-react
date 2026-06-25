@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { createFilm, updateFilm, type FilmWriteBody } from '../api/films'
 import type { Film } from '../types/film'
-import type { ApiError } from '../api/client'
+import type { ApiError } from '@/lib/api4d'
 
 /** All writable film fields as form strings (number fields kept as text). */
 export interface FilmFormState {
@@ -99,7 +99,7 @@ export function useFilmForm(film: Film | undefined, onSaved: () => void) {
       await qc.invalidateQueries({ queryKey: ['films'] })
       onSaved()
     } catch (err) {
-      setError((err as ApiError).detail || (err as ApiError).title || 'Failed to save film.')
+      setError((err as ApiError).problem?.detail || (err as ApiError).problem?.title || 'Failed to save film.')
     } finally {
       setSaving(false)
     }

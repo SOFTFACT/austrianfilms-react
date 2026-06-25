@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../contexts/useAuth'
-import type { ApiError } from '../api/client'
+import { useAuth, ApiError } from '@/lib/api4d'
+import { login as apiLogin } from '../api/auth'
 
 export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { login } = useAuth()
+  const { login: setAuth } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -19,11 +19,18 @@ export function LoginPage() {
     setError(null)
     setLoading(true)
     try {
-      await login(username, password)
+      const r = await apiLogin({ username, password })
+      const expAt = r.expires_in
+        ? new Date(Date.now() + r.expires_in * 1000).toISOString()
+        : null
+      setAuth(r.token, r.user, expAt, r.refresh_token)
       navigate(from, { replace: true })
     } catch (err) {
-      const apiErr = err as ApiError
-      setError(apiErr.title || 'Sign-in failed')
+      setError(
+        err instanceof ApiError
+          ? (err.problem.detail ?? err.problem.title ?? 'Sign-in failed')
+          : 'Server not available',
+      )
     } finally {
       setLoading(false)
     }

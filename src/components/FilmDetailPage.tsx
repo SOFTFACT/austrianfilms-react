@@ -6,7 +6,7 @@ import { useFilm } from '../hooks/useFilms'
 import { useFilmForm, type FilmFormState } from '../hooks/useFilmForm'
 import { deleteFilm } from '../api/films'
 import { FILM_GENRES, type Film } from '../types/film'
-import type { ApiError } from '../api/client'
+import type { ApiError } from '@/lib/api4d'
 
 function Field({ label, value }: { label: string; value: ReactNode }) {
   if (value === undefined || value === null || value === '') return null
@@ -174,7 +174,7 @@ export function FilmDetailPage() {
       await qc.invalidateQueries({ queryKey: ['films'] })
       navigate('/films')
     } catch (err) {
-      setDeleteError((err as ApiError).detail || (err as ApiError).title || 'Failed to delete film.')
+      setDeleteError((err as ApiError).problem?.detail || (err as ApiError).problem?.title || 'Failed to delete film.')
       setDeleting(false)
     }
   }

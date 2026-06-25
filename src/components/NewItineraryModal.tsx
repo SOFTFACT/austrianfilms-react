@@ -6,7 +6,7 @@ import { getFestivals } from '../api/festivals'
 import { createItinerary, type NewItineraryBody } from '../api/itineraries'
 import { ITINERARY_STATUSES } from '../types/itinerary'
 import { useDebounce } from '../hooks/useDebounce'
-import type { ApiError } from '../api/client'
+import type { ApiError } from '@/lib/api4d'
 
 interface Picked {
   id: string
@@ -118,7 +118,7 @@ export function NewItineraryModal({ onClose }: { onClose: () => void }) {
       await qc.invalidateQueries({ queryKey: ['itineraries'] })
       onClose()
     } catch (err) {
-      setError((err as ApiError).detail || (err as ApiError).title || 'Failed to create itinerary.')
+      setError((err as ApiError).problem?.detail || (err as ApiError).problem?.title || 'Failed to create itinerary.')
     } finally {
       setSaving(false)
     }

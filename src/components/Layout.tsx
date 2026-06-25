@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Clapperboard, Award, Route as RouteIcon, Users, LogOut, Menu, X, type LucideIcon } from 'lucide-react'
-import { useAuth } from '../contexts/useAuth'
+import { useAuth } from '@/lib/api4d'
 import { cn } from '../lib/utils'
 
 interface NavItem {
