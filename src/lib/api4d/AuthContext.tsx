@@ -122,9 +122,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const sync = () => {
       const k = keys()
       const token = localStorage.getItem(k.token)
-      const userRaw = localStorage.getItem(k.user)
       const expiresAt = localStorage.getItem(k.expires)
-      const user = userRaw ? (JSON.parse(userRaw) as AuthUser) : null
+      // getStoredUser is try/catch-safe — a corrupt ecoline_user value must
+      // never throw here, or the whole app blanks (AuthProvider wraps it all).
+      const user = getStoredUser()
       setState({
         token,
         user,
