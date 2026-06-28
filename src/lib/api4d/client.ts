@@ -126,6 +126,20 @@ async function performRefresh(): Promise<string | null> {
 }
 
 // ---------------------------------------------------------------------------
+// Query encoding — the 4D web server reads '+' in a query string literally
+// (not as a space), while URLSearchParams encodes spaces as '+'. Normalise the
+// query component (never the path) to %20 so every multi-word search/filter
+// reaches 4D intact, regardless of how each api/*.ts builder assembled it.
+// (api/*.ts also force %20 themselves — belt-and-suspenders while lib/api4d is
+// still duplicated per app rather than a shared package.)
+
+function normalizeQueryPlus(endpoint: string): string {
+  const q = endpoint.indexOf('?')
+  if (q === -1) return endpoint
+  return endpoint.slice(0, q + 1) + endpoint.slice(q + 1).replace(/\+/g, '%20')
+}
+
+// ---------------------------------------------------------------------------
 // apiFetch — the only HTTP entry point. Type the response with <T>.
 
 export async function apiFetch<T>(
@@ -145,7 +159,7 @@ export async function apiFetch<T>(
 
   let res: Response
   try {
-    res = await fetch(`${cfg.apiBase}${endpoint}`, { ...fetchOptions, headers })
+    res = await fetch(`${cfg.apiBase}${normalizeQueryPlus(endpoint)}`, { ...fetchOptions, headers })
   } catch (err: unknown) {
     const netErr = new NetworkError(
       err instanceof Error ? err.message : 'Server not available',
@@ -195,7 +209,7 @@ export async function apiFetch<T>(
     const fresh = await tryRefresh()
     if (fresh) {
       headers.Authorization = `Bearer ${fresh}`
-      const retry = await fetch(`${cfg.apiBase}${endpoint}`, { ...fetchOptions, headers })
+      const retry = await fetch(`${cfg.apiBase}${normalizeQueryPlus(endpoint)}`, { ...fetchOptions, headers })
       if (!retry.ok) {
         const p = (await retry.json().catch(() => ({}))) as ProblemDetails
         throw new ApiError(retry.status, p)
