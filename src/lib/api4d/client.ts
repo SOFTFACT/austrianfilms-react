@@ -1,5 +1,11 @@
 import { _getModuleConfig } from './config'
-import { getStoredToken, getStoredRefreshToken, setStoredAuth, clearAuth } from './AuthContext'
+import {
+  getStoredToken,
+  getStoredRefreshToken,
+  getStoredUser,
+  setStoredAuth,
+  clearAuth,
+} from './AuthContext'
 import type { LoginSuccess, ProblemDetails } from './types'
 
 /**
@@ -106,7 +112,13 @@ async function performRefresh(): Promise<string | null> {
     const expAt = body.expires_in
       ? new Date(Date.now() + body.expires_in * 1000).toISOString()
       : null
-    setStoredAuth(body.token, body.user, expAt, body.refresh_token)
+    // /auth/refresh renews tokens but does NOT return the user identity, so
+    // body.user is undefined here. Keep the user we already have — passing
+    // undefined would persist the literal string "undefined", which later
+    // throws in getStoredUser() and silently bounces the user to /login.
+    const user = body.user ?? getStoredUser()
+    if (!user) return null
+    setStoredAuth(body.token, user, expAt, body.refresh_token)
     return body.token
   } catch {
     return null

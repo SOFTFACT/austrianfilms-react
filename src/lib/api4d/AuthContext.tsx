@@ -66,7 +66,14 @@ export function setStoredAuth(
 ): void {
   const k = keys()
   localStorage.setItem(k.token, token)
-  localStorage.setItem(k.user, JSON.stringify(user))
+  // Guard: a missing user must never be persisted. JSON.stringify(undefined)
+  // is undefined, which localStorage coerces to the string "undefined" — that
+  // later throws in getStoredUser()'s JSON.parse and silently logs the user
+  // out. Callers without a fresh user (e.g. token-only refresh) keep the
+  // stored one untouched.
+  if (user) {
+    localStorage.setItem(k.user, JSON.stringify(user))
+  }
   if (expiresAt) {
     localStorage.setItem(k.expires, expiresAt)
   } else {
