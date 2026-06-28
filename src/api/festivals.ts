@@ -14,12 +14,12 @@ export function getFestivals(filters: FestivalFilters = {}): Promise<Paginated<F
   // search has its own :search route (no sort params there).
   if (filters.search) {
     return apiFetch<Paginated<Festival>>(
-      `/festivals:search?q=${encodeURIComponent(filters.search)}&${p.toString()}`,
+      `/festivals:search?q=${encodeURIComponent(filters.search)}&${p.toString().replace(/\+/g, '%20')}`,
     )
   }
   if (filters.sortField) p.set('sortField', filters.sortField)
   if (filters.sortOrder) p.set('sortOrder', filters.sortOrder)
-  return apiFetch<Paginated<Festival>>(`/festivals?${p.toString()}`)
+  return apiFetch<Paginated<Festival>>(`/festivals?${p.toString().replace(/\+/g, '%20')}`)
 }
 
 export function getFestival(id: string): Promise<Festival> {

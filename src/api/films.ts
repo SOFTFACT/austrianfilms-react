@@ -18,7 +18,7 @@ function toQuery(f: FilmFilters): string {
   if (f.yearFrom) p.set('yearFrom', f.yearFrom)
   if (f.yearTo) p.set('yearTo', f.yearTo)
   if (f.actualOnly) p.set('actualOnly', 'true')
-  return `?${p.toString()}`
+  return `?${p.toString().replace(/\+/g, '%20')}`
 }
 
 export function getFilms(filters: FilmFilters = {}): Promise<Paginated<Film>> {

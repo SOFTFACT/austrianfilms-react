@@ -15,13 +15,13 @@ export function getPersons(filters: PersonFilters = {}): Promise<Paginated<Perso
     if (filters.sortField) p.set('sortField', filters.sortField)
     if (filters.sortOrder) p.set('sortOrder', filters.sortOrder)
     return apiFetch<Paginated<Person>>(
-      `/persons:search?q=${encodeURIComponent(filters.search)}&${p.toString()}`,
+      `/persons:search?q=${encodeURIComponent(filters.search)}&${p.toString().replace(/\+/g, '%20')}`,
     )
   }
   if (filters.sortField) p.set('sortField', filters.sortField)
   if (filters.sortOrder) p.set('sortOrder', filters.sortOrder)
   if (filters.category) p.set('category', filters.category)
-  return apiFetch<Paginated<Person>>(`/persons?${p.toString()}`)
+  return apiFetch<Paginated<Person>>(`/persons?${p.toString().replace(/\+/g, '%20')}`)
 }
 
 export function getPerson(id: string): Promise<Person> {
