@@ -35,7 +35,7 @@ function festivalDetailFields(f: Festival): DetailField[] {
         ''
       ),
     },
-    { label: 'ID', value: <span className="font-mono text-xs text-slate-400">{f.id}</span> },
+    { label: 'ID', value: <span className="font-mono text-xs text-muted-foreground">{f.id}</span> },
   ]
 }
 
@@ -74,18 +74,18 @@ export function FestivalsListPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-12 z-10 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur md:top-0 md:px-6">
+      <div className="sticky top-12 z-10 border-b border-border bg-muted/95 px-4 py-3 backdrop-blur md:top-0 md:px-6">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-lg font-semibold text-slate-900">Festivals</h1>
-          <span className="text-sm text-slate-500">{total.toLocaleString()} total</span>
+          <h1 className="text-lg font-semibold text-foreground">Festivals</h1>
+          <span className="text-sm text-muted-foreground">{total.toLocaleString()} total</span>
           <div className="ml-auto flex items-center gap-2">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search festival, city, country…"
-                className="w-56 rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900 md:w-72"
+                className="w-56 rounded-lg border border-border py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-72"
               />
             </div>
             <ExpandAllButton allExpanded={allExpanded} onToggle={toggleAll} />
@@ -105,17 +105,17 @@ export function FestivalsListPage() {
 
       <div className="px-4 py-3 md:px-6">
         {isLoading ? (
-          <div className="flex justify-center py-12 text-slate-400"><Loader2 className="h-5 w-5 animate-spin" /></div>
+          <div className="flex justify-center py-12 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : error ? (
-          <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {(error as { title?: string })?.title ?? 'Failed to load festivals.'}
           </div>
         ) : items.length === 0 ? (
-          <div className="py-12 text-center text-sm text-slate-400">No festivals found.</div>
+          <div className="py-12 text-center text-sm text-muted-foreground">No festivals found.</div>
         ) : (
           <div>
             {/* Column order mirrors /hq/festivals: Flag · City · Festival · Year · From · To · Rating. */}
-            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold tracking-wide text-slate-400">
+            <div className="flex items-center gap-3 border-b border-border px-3 pb-2 text-xs font-semibold tracking-wide text-muted-foreground">
               <span className="w-16 shrink-0 uppercase">Country</span>
               <SortHeader label="City" field="ort" sort={sort} onSort={toggleSort} className="hidden w-40 shrink-0 md:flex" />
               <SortHeader label="Festival" field="festival" sort={sort} onSort={toggleSort} className="min-w-0 flex-1" />
@@ -142,24 +142,24 @@ export function FestivalsListPage() {
                       onClick={() => toggle(f.id)}
                       aria-expanded={exp}
                       className={cn(
-                        'flex h-16 w-full cursor-pointer items-center gap-3 border-b border-slate-100 px-3 text-left hover:bg-slate-50',
-                        exp ? 'bg-slate-50' : 'bg-white',
+                        'flex h-16 w-full cursor-pointer items-center gap-3 border-b border-border px-3 text-left hover:bg-muted',
+                        exp ? 'bg-muted' : 'bg-card',
                       )}
                     >
                       <div className="flex w-16 shrink-0 items-center gap-1.5">
                         <Flag code={f.countryCode} />
-                        <span className="text-xs uppercase text-slate-400">{f.countryCode}</span>
+                        <span className="text-xs uppercase text-muted-foreground">{f.countryCode}</span>
                       </div>
-                      <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 md:block">{f.ort}</div>
+                      <div className="hidden w-40 shrink-0 truncate text-sm text-muted-foreground md:block">{f.ort}</div>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium text-slate-900">{f.festival || '—'}</div>
-                        <div className="truncate text-xs text-slate-500 md:hidden">
+                        <div className="truncate text-sm font-medium text-foreground">{f.festival || '—'}</div>
+                        <div className="truncate text-xs text-muted-foreground md:hidden">
                           {[f.ort, f.land || f.countryCode].filter(Boolean).join(', ')}
                         </div>
                       </div>
-                      <div className="w-14 shrink-0 text-right text-sm text-slate-500">{f.jahr || ''}</div>
-                      <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.von)}</div>
-                      <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 lg:block">{formatDate(f.bis)}</div>
+                      <div className="w-14 shrink-0 text-right text-sm text-muted-foreground">{f.jahr || ''}</div>
+                      <div className="hidden w-24 shrink-0 text-right text-xs text-muted-foreground lg:block">{formatDate(f.von)}</div>
+                      <div className="hidden w-24 shrink-0 text-right text-xs text-muted-foreground lg:block">{formatDate(f.bis)}</div>
                       <div className="hidden w-20 shrink-0 text-sm xl:block">
                         {f.rating ? (
                           <span className="text-amber-500" title={festivalRatingLabel(f.rating)}>
@@ -167,7 +167,7 @@ export function FestivalsListPage() {
                           </span>
                         ) : null}
                       </div>
-                      <ChevronRight className={cn('h-4 w-4 shrink-0 text-slate-300 transition-transform', exp && 'rotate-90')} />
+                      <ChevronRight className={cn('h-4 w-4 shrink-0 text-muted-foreground/60 transition-transform', exp && 'rotate-90')} />
                     </div>
                     {exp && (
                       <RowInlineDetail
@@ -176,7 +176,7 @@ export function FestivalsListPage() {
                           <button
                             type="button"
                             onClick={() => navigate(`/festivals/${f.id}`)}
-                            className="rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
+                            className="rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
                           >
                             Open festival
                           </button>

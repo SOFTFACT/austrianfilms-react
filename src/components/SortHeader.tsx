@@ -29,7 +29,7 @@ export function SortHeader({
     <button
       type="button"
       onClick={() => onSort(field)}
-      className={cn('flex items-center gap-1 uppercase hover:text-slate-700', active && 'text-slate-700', className)}
+      className={cn('flex items-center gap-1 uppercase hover:text-foreground', active && 'text-foreground', className)}
     >
       <span className="truncate">{label}</span>
       {active && <span aria-hidden>{sort.order === 'asc' ? '▲' : '▼'}</span>}

@@ -26,9 +26,9 @@ interface RowInlineDetailProps {
  */
 export function RowInlineDetail({ imageUrl, imageAlt, fields, actions, onClose }: RowInlineDetailProps) {
   return (
-    <div className="flex border-y-2 border-slate-900 bg-white" data-testid="row-inline-detail">
+    <div className="flex border-y-2 border-primary bg-card" data-testid="row-inline-detail">
       {imageUrl && (
-        <div className="hidden w-48 shrink-0 items-center justify-center border-r border-slate-200 bg-slate-50 p-3 sm:flex">
+        <div className="hidden w-48 shrink-0 items-center justify-center border-r border-border bg-muted p-3 sm:flex">
           <img src={imageUrl} alt={imageAlt ?? ''} loading="lazy" className="max-h-64 max-w-full object-contain" />
         </div>
       )}
@@ -39,7 +39,7 @@ export function RowInlineDetail({ imageUrl, imageAlt, fields, actions, onClose }
             type="button"
             onClick={onClose}
             aria-label="Collapse row"
-            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -47,8 +47,8 @@ export function RowInlineDetail({ imageUrl, imageAlt, fields, actions, onClose }
         <div className="grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4">
           {fields.map((f) => (
             <div key={f.label} className={cn('flex min-w-0 flex-col', f.full && 'col-span-2 md:col-span-4')}>
-              <span className="mb-0.5 text-xs font-medium uppercase tracking-wide text-slate-400">{f.label}</span>
-              <span className="break-words text-sm text-slate-700">
+              <span className="mb-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">{f.label}</span>
+              <span className="break-words text-sm text-muted-foreground">
                 {f.value === '' || f.value == null ? '—' : f.value}
               </span>
             </div>
@@ -65,7 +65,7 @@ export function ExpandAllButton({ allExpanded, onToggle }: { allExpanded: boolea
     <button
       type="button"
       onClick={onToggle}
-      className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50"
+      className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-muted"
     >
       {allExpanded ? <ChevronsDownUp className="h-4 w-4" /> : <ChevronsUpDown className="h-4 w-4" />}
       {allExpanded ? 'Collapse all' : 'Expand all'}

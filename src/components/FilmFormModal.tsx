@@ -22,15 +22,15 @@ function FieldInput({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-slate-600">
-        {label} {required && <span className="text-red-500">*</span>}
+      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+        {label} {required && <span className="text-destructive">*</span>}
       </label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm outline-none focus:border-slate-900"
+        className="w-full rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-ring"
       />
     </div>
   )
@@ -49,10 +49,10 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
-      <div className="mt-10 w-full max-w-2xl rounded-xl border border-slate-200 bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3">
-          <h2 className="text-base font-semibold text-slate-900">{isEdit ? 'Edit film' : 'New film'}</h2>
-          <button onClick={onClose} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+      <div className="mt-10 w-full max-w-2xl rounded-xl border border-border bg-card shadow-xl">
+        <div className="flex items-center justify-between border-b border-border px-5 py-3">
+          <h2 className="text-base font-semibold text-foreground">{isEdit ? 'Edit film' : 'New film'}</h2>
+          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -75,11 +75,11 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
               placeholder="2024"
             />
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Genre</label>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Genre</label>
               <select
                 value={form.genre}
                 onChange={(e) => set('genre', e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm"
+                className="w-full rounded-lg border border-border px-2 py-2 text-sm"
               >
                 <option value="">—</option>
                 {FILM_GENRES.map((g) => (
@@ -102,7 +102,7 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
           <button
             type="button"
             onClick={() => setShowDetails((s) => !s)}
-            className="flex w-full items-center justify-between border-t border-slate-100 pt-3 text-xs font-semibold uppercase tracking-wide text-slate-500 hover:text-slate-700"
+            className="flex w-full items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
           >
             <span>Additional details</span>
             <ChevronDown className={cn('h-4 w-4 transition-transform', showDetails && 'rotate-180')} />
@@ -124,28 +124,28 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
                 placeholder="https://example.com"
               />
               <div className="col-span-2">
-                <label className="mb-1 block text-xs font-medium text-slate-600">Notes</label>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">Notes</label>
                 <textarea
                   value={form.bemerkung}
                   onChange={(e) => set('bemerkung', e.target.value)}
                   rows={3}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm outline-none focus:border-slate-900"
+                  className="w-full rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-ring"
                 />
               </div>
             </div>
           )}
 
-          {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+          {error && <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-3">
-          <button onClick={onClose} className="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">
+        <div className="flex justify-end gap-2 border-t border-border px-5 py-3">
+          <button onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted">
             Cancel
           </button>
           <button
             onClick={submit}
             disabled={saving}
-            className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
             {isEdit ? 'Save' : 'Create'}

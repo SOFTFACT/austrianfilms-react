@@ -136,7 +136,7 @@ export function VirtualGrid<T>({
         })}
       </div>
       {isFetchingNextPage && (
-        <div className="flex justify-center py-8 text-sm text-slate-400">
+        <div className="flex justify-center py-8 text-sm text-muted-foreground">
           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           Lade weitere…
         </div>

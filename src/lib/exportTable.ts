@@ -96,7 +96,9 @@ export async function downloadPdf<T>(
     head: [columns.map((c) => c.header)],
     body: rows.map((r) => columns.map((c) => cellText(c, r))),
     styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [51, 65, 85] }, // slate-700, matches the UI
+    // Literal RGB on purpose: a PDF has no theme, so it cannot follow the
+    // light/dark design tokens. Fixed neutral header band.
+    headStyles: { fillColor: [51, 65, 85] },
   })
   doc.save(filename)
 }

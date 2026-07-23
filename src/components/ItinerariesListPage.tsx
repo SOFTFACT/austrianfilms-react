@@ -45,7 +45,7 @@ function itineraryDetailFields(i: Itinerary): DetailField[] {
     { label: 'Submission via', value: i.submissionVia },
     { label: 'Screening fee', value: i.screeningFee ? `€${i.screeningFee}` : '' },
     { label: 'Record date', value: i.datum ? formatDate(i.datum) : '' },
-    { label: 'ID', value: <span className="font-mono text-xs text-slate-400">{i.id}</span> },
+    { label: 'ID', value: <span className="font-mono text-xs text-muted-foreground">{i.id}</span> },
   ]
   if (i.notesPublic) fields.push({ label: 'Notes', value: i.notesPublic, full: true })
   return fields
@@ -97,34 +97,34 @@ export function ItinerariesListPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-12 z-10 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur md:top-0 md:px-6">
+      <div className="sticky top-12 z-10 border-b border-border bg-muted/95 px-4 py-3 backdrop-blur md:top-0 md:px-6">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-lg font-semibold text-slate-900">Itineraries</h1>
-          <span className="text-sm text-slate-500">{total.toLocaleString()} total</span>
+          <h1 className="text-lg font-semibold text-foreground">Itineraries</h1>
+          <span className="text-sm text-muted-foreground">{total.toLocaleString()} total</span>
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={() => setShowNew(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+              className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" /> New
             </button>
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search film, festival…"
-                className="w-44 rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900 md:w-60"
+                className="w-44 rounded-lg border border-border py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-60"
               />
             </div>
             <button
               onClick={() => setShowFilters((s) => !s)}
-              className="relative flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50"
+              className="relative flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-muted"
             >
               <Filter className="h-4 w-4" />
               Filters
               {activeCount > 0 && (
-                <span className="ml-1 rounded-full bg-slate-900 px-1.5 text-xs text-white">{activeCount}</span>
+                <span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">{activeCount}</span>
               )}
             </button>
             <ExpandAllButton allExpanded={allExpanded} onToggle={toggleAll} />
@@ -154,17 +154,17 @@ export function ItinerariesListPage() {
 
       <div className="px-4 py-3 md:px-6">
         {isLoading ? (
-          <div className="flex justify-center py-12 text-slate-400"><Loader2 className="h-5 w-5 animate-spin" /></div>
+          <div className="flex justify-center py-12 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : error ? (
-          <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {(error as { title?: string })?.title ?? 'Failed to load itineraries.'}
           </div>
         ) : items.length === 0 ? (
-          <div className="py-12 text-center text-sm text-slate-400">No itineraries found.</div>
+          <div className="py-12 text-center text-sm text-muted-foreground">No itineraries found.</div>
         ) : (
           <div>
             {/* Column order mirrors /hq/itineraries: Country · City · Festival · Film · From · To · Status · Section. */}
-            <div className="flex items-center gap-3 border-b border-slate-200 px-3 pb-2 text-xs font-semibold tracking-wide text-slate-400">
+            <div className="flex items-center gap-3 border-b border-border px-3 pb-2 text-xs font-semibold tracking-wide text-muted-foreground">
               <span className="w-16 shrink-0 uppercase">Country</span>
               <SortHeader label="City" field="city" sort={sort} onSort={toggleSort} className="hidden w-32 shrink-0 lg:flex" />
               <SortHeader label="Festival" field="festivalname" sort={sort} onSort={toggleSort} className="hidden w-40 shrink-0 xl:flex" />
@@ -192,24 +192,24 @@ export function ItinerariesListPage() {
                       onClick={() => toggle(i.id)}
                       aria-expanded={exp}
                       className={cn(
-                        'flex h-16 w-full cursor-pointer items-center gap-3 border-b border-slate-100 px-3 hover:bg-slate-50',
-                        exp ? 'bg-slate-50' : 'bg-white',
+                        'flex h-16 w-full cursor-pointer items-center gap-3 border-b border-border px-3 hover:bg-muted',
+                        exp ? 'bg-muted' : 'bg-card',
                       )}
                     >
                       <div className="flex w-16 shrink-0 items-center gap-1.5">
                         <Flag code={i.countryCode} />
-                        <span className="text-xs uppercase text-slate-400">{i.countryCode}</span>
+                        <span className="text-xs uppercase text-muted-foreground">{i.countryCode}</span>
                       </div>
-                      <div className="hidden w-32 shrink-0 truncate text-sm text-slate-500 lg:block">{i.city || i.ort}</div>
-                      <div className="hidden w-40 shrink-0 truncate text-sm text-slate-500 xl:block">{i.festivalname}</div>
+                      <div className="hidden w-32 shrink-0 truncate text-sm text-muted-foreground lg:block">{i.city || i.ort}</div>
+                      <div className="hidden w-40 shrink-0 truncate text-sm text-muted-foreground xl:block">{i.festivalname}</div>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium text-slate-900">{i.film || '—'}</div>
-                        <div className="truncate text-xs text-slate-500 xl:hidden">
+                        <div className="truncate text-sm font-medium text-foreground">{i.film || '—'}</div>
+                        <div className="truncate text-xs text-muted-foreground xl:hidden">
                           {[i.city || i.ort, i.festivalname].filter(Boolean).join(' · ')}
                         </div>
                       </div>
-                      <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 md:block">{formatDate(i.von)}</div>
-                      <div className="hidden w-24 shrink-0 text-right text-xs text-slate-400 md:block">{formatDate(i.bis)}</div>
+                      <div className="hidden w-24 shrink-0 text-right text-xs text-muted-foreground md:block">{formatDate(i.von)}</div>
+                      <div className="hidden w-24 shrink-0 text-right text-xs text-muted-foreground md:block">{formatDate(i.bis)}</div>
                       <div className="w-28 shrink-0">
                         {i.statusExtern ? (
                           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${itineraryStatusClasses(i.statusExtern)}`}>
@@ -217,8 +217,8 @@ export function ItinerariesListPage() {
                           </span>
                         ) : null}
                       </div>
-                      <div className="hidden w-24 shrink-0 truncate text-xs text-slate-400 2xl:block">{i.sektion}</div>
-                      <ChevronRight className={cn('h-4 w-4 shrink-0 text-slate-300 transition-transform', exp && 'rotate-90')} />
+                      <div className="hidden w-24 shrink-0 truncate text-xs text-muted-foreground 2xl:block">{i.sektion}</div>
+                      <ChevronRight className={cn('h-4 w-4 shrink-0 text-muted-foreground/60 transition-transform', exp && 'rotate-90')} />
                     </div>
                     {exp && (
                       <RowInlineDetail fields={itineraryDetailFields(i)} onClose={() => toggle(i.id)} />

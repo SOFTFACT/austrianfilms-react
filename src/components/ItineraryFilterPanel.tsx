@@ -40,29 +40,29 @@ export function ItineraryFilterPanel({
   }
 
   const field =
-    'rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm outline-none focus:border-slate-900'
+    'rounded-lg border border-border px-2.5 py-1.5 text-sm outline-none focus:border-ring'
 
   return (
-    <div className="mt-3 rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-2.5">
+    <div className="mt-3 rounded-xl border border-border bg-card shadow-sm">
+      <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-slate-900">Filters</h3>
+          <h3 className="text-sm font-semibold text-foreground">Filters</h3>
           {activeCount > 0 && (
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+            <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-muted-foreground">
               {activeCount} active
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           {activeCount > 0 && (
-            <button onClick={clear} className="text-sm text-slate-500 hover:text-slate-900">
+            <button onClick={clear} className="text-sm text-muted-foreground hover:text-foreground">
               Clear all
             </button>
           )}
           <button
             onClick={onClose}
             aria-label="Close filters"
-            className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -72,7 +72,7 @@ export function ItineraryFilterPanel({
       <div className="space-y-4 px-4 py-3">
         {/* Status — multi-select chips, colored per status when active. */}
         <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Status
           </label>
           <div className="flex flex-wrap gap-1.5">
@@ -85,8 +85,8 @@ export function ItineraryFilterPanel({
                   aria-pressed={active}
                   className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
                     active
-                      ? `${itineraryStatusClasses(status)} ring-2 ring-inset ring-slate-900/25`
-                      : 'bg-white text-slate-500 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
+                      ? `${itineraryStatusClasses(status)} ring-2 ring-inset ring-ring/25`
+                      : 'bg-card text-muted-foreground ring-1 ring-inset ring-border hover:bg-muted'
                   }`}
                 >
                   {status}
@@ -99,7 +99,7 @@ export function ItineraryFilterPanel({
         {/* Country + date range + premiere flags. */}
         <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Country
             </label>
             <input
@@ -111,7 +111,7 @@ export function ItineraryFilterPanel({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Date range
             </label>
             <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ export function ItineraryFilterPanel({
                 onChange={(e) => update('dateFrom', e.target.value)}
                 className={field}
               />
-              <span className="text-slate-400">–</span>
+              <span className="text-muted-foreground">–</span>
               <input
                 type="date"
                 value={filters.dateTo}
@@ -142,10 +142,10 @@ export function ItineraryFilterPanel({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Premiere
             </label>
-            <div className="flex items-center gap-3 py-1.5 text-sm text-slate-700">
+            <div className="flex items-center gap-3 py-1.5 text-sm text-muted-foreground">
               <label className="flex items-center gap-1.5">
                 <input
                   type="checkbox"

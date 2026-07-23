@@ -9,6 +9,7 @@ import {
   setForceLogoutCleanup,
   type API4DConfig,
 } from '@/lib/api4d'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import './index.css'
 import App from './App.tsx'
 
@@ -47,15 +48,17 @@ function CacheFlushBinder() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <API4DProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <BrowserRouter>
-            <CacheFlushBinder />
-            <App />
-          </BrowserRouter>
-        </AuthProvider>
-      </QueryClientProvider>
-    </API4DProvider>
+    <ThemeProvider>
+      <API4DProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <BrowserRouter>
+              <CacheFlushBinder />
+              <App />
+            </BrowserRouter>
+          </AuthProvider>
+        </QueryClientProvider>
+      </API4DProvider>
+    </ThemeProvider>
   </StrictMode>,
 )
