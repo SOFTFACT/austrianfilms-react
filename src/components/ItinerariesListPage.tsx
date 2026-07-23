@@ -118,7 +118,8 @@ export function ItinerariesListPage() {
               />
             </div>
             <button
-              onClick={() => setShowFilters((s) => !s)}
+              onClick={() => setShowFilters(true)}
+              aria-haspopup="dialog"
               className="relative flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-muted"
             >
               <Filter className="h-4 w-4" />
@@ -141,15 +142,14 @@ export function ItinerariesListPage() {
           </div>
         </div>
 
-        {showFilters && (
-          <ItineraryFilterPanel
-            filters={filters}
-            update={update}
-            clear={clear}
-            activeCount={activeCount}
-            onClose={() => setShowFilters(false)}
-          />
-        )}
+        <ItineraryFilterPanel
+          open={showFilters}
+          onOpenChange={setShowFilters}
+          filters={filters}
+          update={update}
+          clear={clear}
+          activeCount={activeCount}
+        />
       </div>
 
       <div className="px-4 py-3 md:px-6">
