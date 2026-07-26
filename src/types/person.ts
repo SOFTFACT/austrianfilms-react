@@ -8,7 +8,7 @@ export interface Person {
   nachname: string
   fullName: string
   kategorie: string
-  sex?: string
+  gender?: string
   born_in?: string
   born_inYear?: number
   died_in?: string
