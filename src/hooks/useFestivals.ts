@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFestivals, getFestival } from '../api/festivals'
-import { useInfiniteList } from '../components/virtual/useInfiniteList'
+import { usePagedList } from '@/lib/api4d'
 import type { Festival, FestivalFilters } from '../types/festival'
 
 export function useFestivalsInfinite(filters: FestivalFilters = {}) {
   const limit = filters.limit ?? 100
-  return useInfiniteList<Festival>({
+  return usePagedList<Festival>({
     queryKey: ['festivals', 'infinite', { ...filters, limit }],
     fetchPage: (page) => getFestivals({ ...filters, page, limit }),
     getItemId: (f) => f.id,

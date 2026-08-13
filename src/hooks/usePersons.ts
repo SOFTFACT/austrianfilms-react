@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { getPersons, getPerson } from '../api/persons'
-import { useInfiniteList } from '../components/virtual/useInfiniteList'
+import { usePagedList } from '@/lib/api4d'
 import type { Person, PersonFilters } from '../types/person'
 
 export function usePersonsInfinite(filters: PersonFilters = {}) {
   const limit = filters.limit ?? 100
-  return useInfiniteList<Person>({
+  return usePagedList<Person>({
     queryKey: ['persons', 'infinite', { ...filters, limit }],
     fetchPage: (page) => getPersons({ ...filters, page, limit }),
     getItemId: (p) => p.id,

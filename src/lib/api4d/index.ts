@@ -42,4 +42,11 @@ export {
 export { ApiHealthProvider } from './ApiHealthContext'
 export { useApiHealth } from './apiHealthState'
 
-export { useDebounce, useInfiniteList, type PageParam } from './hooks'
+export {
+  useDebounce,
+  useInfiniteList,
+  usePagedList,
+  type PageParam,
+  type UseInfiniteListOptions,
+  type UsePagedListOptions,
+} from './hooks'

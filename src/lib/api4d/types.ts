@@ -14,13 +14,19 @@ export interface Pagination {
   page: number
   pages: number
   hasNext: boolean
-  hasPrev: boolean
+  /** Optional: not every endpoint reports it, and nothing in the fleet reads it. */
+  hasPrev?: boolean
   nextCursor?: string | null
 }
 
-export interface PagedResponse<T> {
+/**
+ * Collection envelope. `P` lets a host widen `pagination` with its own extras
+ * (e.g. aggregates computed over the whole filtered set) without this library
+ * having to know them — the default keeps every existing call site unchanged.
+ */
+export interface PagedResponse<T, P extends Pagination = Pagination> {
   data: T[]
-  pagination: Pagination
+  pagination: P
 }
 
 /**
