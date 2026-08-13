@@ -1,11 +1,11 @@
-import { _getModuleConfig } from './config'
+import { _getModuleConfig } from './configState'
 import {
   getStoredToken,
   getStoredRefreshToken,
   getStoredUser,
   setStoredAuth,
   clearAuth,
-} from './AuthContext'
+} from './authState'
 import type { LoginSuccess, ProblemDetails } from './types'
 
 /**
@@ -56,6 +56,10 @@ export function clearNetworkErrorHandlers(): void {
 // failure. The cache-flush callback is the app's chance to clear React
 // Query so pending queries don't fire one last 401 before navigation.
 
+// sessionStorage key for the post-login return path written by forceLogout and
+// consumed by LoginPage. Per-tab/per-origin, so a fixed key is collision-safe.
+export const REDIRECT_AFTER_LOGIN_KEY = 'api4d_redirect_after_login'
+
 let _onForceLogoutCleanup: (() => void) | null = null
 let _isRedirecting = false
 
@@ -72,7 +76,18 @@ export function forceLogout(): void {
   } catch {
     /* defensive — cleanup must not block redirect */
   }
-  window.location.replace(_getModuleConfig().loginRoute)
+  const loginRoute = _getModuleConfig().loginRoute
+  // A mid-session expiry is a hard redirect (no Router state survives it), so
+  // stash where the user was. LoginPage reads this back and returns them there.
+  try {
+    const here = window.location.pathname + window.location.search + window.location.hash
+    if (here && !here.startsWith(loginRoute)) {
+      sessionStorage.setItem(REDIRECT_AFTER_LOGIN_KEY, here)
+    }
+  } catch {
+    /* sessionStorage may be unavailable — non-fatal */
+  }
+  window.location.replace(loginRoute)
 }
 
 // ---------------------------------------------------------------------------
@@ -231,4 +246,54 @@ export async function apiFetch<T>(
   }
 
   return res.status === 204 ? (undefined as T) : ((await res.json()) as T)
+}
+
+// ---------------------------------------------------------------------------
+// apiFetchBlob — for binary endpoints (e.g. PDF export). Same auth + single
+// silent-refresh-on-401 behaviour as apiFetch, but returns the raw Blob.
+// Error responses on these endpoints are still application/problem+json, so a
+// non-ok status is surfaced as an ApiError with the parsed problem body.
+
+export async function apiFetchBlob(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<Blob> {
+  const cfg = _getModuleConfig()
+  const token = getStoredToken()
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> | undefined),
+  }
+  if (token) headers.Authorization = `Bearer ${token}`
+
+  const doFetch = (h: Record<string, string>): Promise<Response> =>
+    fetch(`${cfg.apiBase}${normalizeQueryPlus(endpoint)}`, { ...options, headers: h })
+
+  let res: Response
+  try {
+    res = await doFetch(headers)
+  } catch (err: unknown) {
+    throw new NetworkError(err instanceof Error ? err.message : 'Server not available')
+  }
+
+  if (res.status === 401) {
+    const fresh = await tryRefresh()
+    if (!fresh) {
+      forceLogout()
+      throw new ApiError(401, {
+        type: 'about:blank',
+        title: 'Unauthorized',
+        status: 401,
+        detail: 'Session expired',
+      })
+    }
+    headers.Authorization = `Bearer ${fresh}`
+    res = await doFetch(headers)
+  }
+
+  if (!res.ok) {
+    const p = (await res.json().catch(() => ({}))) as ProblemDetails
+    throw new ApiError(res.status, p)
+  }
+
+  return res.blob()
 }

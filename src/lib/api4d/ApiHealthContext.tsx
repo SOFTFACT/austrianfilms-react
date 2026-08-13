@@ -1,12 +1,7 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from 'react'
-import { _getModuleConfig } from './config'
+import { useEffect, useState, type ReactNode } from 'react'
+import { _getModuleConfig } from './configState'
 import { setNetworkErrorHandlers, clearNetworkErrorHandlers } from './client'
+import { ApiHealthCtx } from './apiHealthState'
 
 /**
  * Tracks "is the backend reachable?" so the app can render an overlay
@@ -16,12 +11,6 @@ import { setNetworkErrorHandlers, clearNetworkErrorHandlers } from './client'
  * operation. Active polling kicks in only while we're already known
  * to be down, until a recovery hit comes through.
  */
-interface ApiHealthContextValue {
-  isServerAvailable: boolean
-}
-
-const Ctx = createContext<ApiHealthContextValue>({ isServerAvailable: true })
-
 export function ApiHealthProvider({ children }: { children: ReactNode }) {
   const [up, setUp] = useState(true)
 
@@ -50,9 +39,7 @@ export function ApiHealthProvider({ children }: { children: ReactNode }) {
     return () => window.clearInterval(id)
   }, [up])
 
-  return <Ctx.Provider value={{ isServerAvailable: up }}>{children}</Ctx.Provider>
-}
-
-export function useApiHealth(): ApiHealthContextValue {
-  return useContext(Ctx)
+  return (
+    <ApiHealthCtx.Provider value={{ isServerAvailable: up }}>{children}</ApiHealthCtx.Provider>
+  )
 }

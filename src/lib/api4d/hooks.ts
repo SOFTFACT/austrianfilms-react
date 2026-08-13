@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useInfiniteQuery, type QueryKey } from '@tanstack/react-query'
-import { getStoredToken } from './AuthContext'
+import { getStoredToken } from './authState'
 import type { PagedResponse } from './types'
 
 /**
