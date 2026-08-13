@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { Loader2 } from 'lucide-react'
+import { LoaderCircle } from 'lucide-react'
 import { useScrollMargin } from './useScrollMargin'
 
 export interface VirtualGridProps<T> {
@@ -50,9 +50,9 @@ function useCardsPerRow(
 }
 
 /**
- * Multi-column window-virtualized grid with constant card height. Ported
- * verbatim from artdimensions-react. One virtual row holds `cardsPerRow`
- * cards laid out via plain CSS Grid so the gap stays uniform.
+ * Multi-column window-virtualized grid with constant card height. One virtual
+ * row holds `cardsPerRow` cards laid out via plain CSS Grid so the gap stays
+ * uniform.
  */
 export function VirtualGrid<T>({
   items,
@@ -137,7 +137,7 @@ export function VirtualGrid<T>({
       </div>
       {isFetchingNextPage && (
         <div className="flex justify-center py-8 text-sm text-muted-foreground">
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
           Lade weitere…
         </div>
       )}

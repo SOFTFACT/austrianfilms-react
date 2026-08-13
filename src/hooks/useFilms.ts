@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFilms, getFilm } from '../api/films'
-import { useInfiniteList } from '../components/virtual'
+import { useInfiniteList } from '../components/virtual/useInfiniteList'
 import type { Film, FilmFilters } from '../types/film'
 
 /**

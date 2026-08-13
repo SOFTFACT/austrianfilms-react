@@ -1,5 +1,5 @@
 import { getItineraries } from '../api/itineraries'
-import { useInfiniteList } from '../components/virtual'
+import { useInfiniteList } from '../components/virtual/useInfiniteList'
 import type { Itinerary, ItineraryFilters } from '../types/itinerary'
 
 export function useItinerariesInfinite(filters: ItineraryFilters = {}) {

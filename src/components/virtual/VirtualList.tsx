@@ -8,9 +8,9 @@ import {
   type ReactNode,
 } from 'react'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { Loader2 } from 'lucide-react'
+import { LoaderCircle } from 'lucide-react'
 import { useScrollMargin } from './useScrollMargin'
-import { cn } from '../../lib/utils'
+import { cn } from '@/lib/utils'
 
 /** Imperative handle exposed via `ref`. Lets callers drive scroll
  *  declaratively (back-nav restore, deep-link to N) without reaching
@@ -43,10 +43,10 @@ export interface VirtualListProps<T> {
 
 /**
  * Single-column window-virtualized list with optional infinite pagination.
- * Ported verbatim from artdimensions-react (CMP1-95) — keeps the proven
- * scrollMargin handling, the non-advancing-cursor guard (in useInfiniteList)
- * and the transform-vs-top positioning split that avoids the measureElement
- * render loop.
+ * Keeps two hard-won details: the scrollMargin handling, and the
+ * transform-vs-top positioning split that avoids the measureElement render
+ * loop. Paging state comes from the caller — this component makes no
+ * assumption about the API behind it.
  */
 function VirtualListInner<T>(
   {
@@ -139,7 +139,7 @@ function VirtualListInner<T>(
       </div>
       {isFetchingNextPage && (
         <div className="flex justify-center py-6 text-xs text-muted-foreground">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           Lade weitere…
         </div>
       )}

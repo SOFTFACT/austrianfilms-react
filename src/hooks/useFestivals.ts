@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFestivals, getFestival } from '../api/festivals'
-import { useInfiniteList } from '../components/virtual'
+import { useInfiniteList } from '../components/virtual/useInfiniteList'
 import type { Festival, FestivalFilters } from '../types/festival'
 
 export function useFestivalsInfinite(filters: FestivalFilters = {}) {
