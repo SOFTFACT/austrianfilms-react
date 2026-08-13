@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth, ApiError } from '@/lib/api4d'
+import { useAuth, ApiError, REDIRECT_AFTER_LOGIN_KEY } from '@/lib/api4d'
 import { login as apiLogin } from '../api/auth'
 
 export function LoginPage() {
@@ -12,7 +12,23 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const from = (location.state as { from?: string })?.from || '/'
+  // Where to go after a successful login. Priority:
+  //   1. sessionStorage (set by forceLogout on a mid-session expiry — survives
+  //      the hard redirect that drops Router state). Read once and consumed.
+  //   2. Router state.from (set on a cold-load bounce).
+  //   3. the dashboard.
+  const [from] = useState<string>(() => {
+    try {
+      const stashed = sessionStorage.getItem(REDIRECT_AFTER_LOGIN_KEY)
+      if (stashed) {
+        sessionStorage.removeItem(REDIRECT_AFTER_LOGIN_KEY)
+        return stashed
+      }
+    } catch {
+      /* sessionStorage unavailable — fall through */
+    }
+    return (location.state as { from?: string })?.from || '/'
+  })
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
