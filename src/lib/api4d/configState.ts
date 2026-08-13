@@ -2,8 +2,8 @@ import { createContext, useContext } from 'react'
 
 /**
  * Per-app configuration of the API4D library layer. Keeps storage keys,
- * endpoint paths, and the API base configurable so the same library
- * code runs against MDS-Praxis, ECOline, ArtDimensions, etc.
+ * endpoint paths, and the API base configurable so the same library code runs
+ * unchanged against any host application.
  *
  * When this library is extracted to a standalone package, this is the
  * single configuration surface every host must wire up before mounting
@@ -16,7 +16,7 @@ export interface API4DConfig {
   /** Base path for every API call, e.g. "/api/v1". */
   apiBase: string
   /** localStorage key prefix — distinguishes tokens from sibling apps
-   *  on the same origin. e.g. "mds" → mds_token / mds_user / mds_expires_at. */
+   *  on the same origin. e.g. "app" → app_token / app_user / app_expires_at. */
   storagePrefix: string
   /** POST endpoint that exchanges a stale Bearer for a fresh one.
    *  e.g. "/auth/refresh". */

@@ -37,16 +37,16 @@ export interface ProblemDetails {
 
 /**
  * User shape returned by /auth/login + /auth/me. id/username/role are the
- * common core; email/groups are optional so hosts that need them (ECOline's
- * RBAC nav-gating reads groups) get them typed, while hosts that don't simply
- * leave them unset. Keep this a superset so the lib stays identical everywhere.
+ * common core; email/groups are optional so hosts that need them (RBAC
+ * nav-gating reads groups) get them typed, while hosts that don't simply leave
+ * them unset. Keep this a superset so the lib stays identical everywhere.
  */
 export interface AuthUser {
   id: string
   username: string
   role?: string
   email?: string
-  /** Area groups for RBAC nav-gating (ECOline). Other hosts leave unset. */
+  /** Area groups for RBAC nav-gating. Hosts without RBAC leave this unset. */
   groups?: { id?: number; name: string }[]
 }
 
