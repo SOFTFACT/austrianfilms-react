@@ -5,6 +5,13 @@ React + TypeScript frontend for **AustrianFilms** (4D film-industry database).
 **Lives OUTSIDE the 4D project — its own Git repo.** Sister of `ecoline-react`
 and `mds-praxis-react`, built on the shared **API4D** auth component.
 
+Before starting, read `../4d-claude-standards/CLAUDE-REACT.md` — the frontend
+rules shared across the fleet: error handling, auth failures, the supported-
+browser floor and the test policy. They are behaviour rules rather than shared
+code, so they hold here whether or not this project consumes
+`@softfact/api4d-react`.
+
+
 ```
 ~/Documents/GitHub/
 ├── AustrianFilms/          ← 4D backend + REST API (:8181)
