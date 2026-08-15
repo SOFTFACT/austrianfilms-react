@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFestivals, getFestival } from '../api/festivals'
-import { usePagedList } from '@/lib/api4d'
+import { usePagedList } from '@softfact/api4d-react'
 import type { Festival, FestivalFilters } from '../types/festival'
 
 export function useFestivalsInfinite(filters: FestivalFilters = {}) {

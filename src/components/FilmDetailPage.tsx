@@ -6,7 +6,7 @@ import { useFilm } from '../hooks/useFilms'
 import { useFilmForm, type FilmFormState } from '../hooks/useFilmForm'
 import { deleteFilm } from '../api/films'
 import { FILM_GENRES, type Film } from '../types/film'
-import type { ApiError } from '@/lib/api4d'
+import type { ApiError } from '@softfact/api4d-react'
 
 function Field({ label, value }: { label: string; value: ReactNode }) {
   if (value === undefined || value === null || value === '') return null

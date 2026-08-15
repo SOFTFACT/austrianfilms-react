@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFilms, getFilm } from '../api/films'
-import { usePagedList } from '@/lib/api4d'
+import { usePagedList } from '@softfact/api4d-react'
 import type { Film, FilmFilters } from '../types/film'
 
 /**

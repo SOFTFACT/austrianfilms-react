@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api4d'
+import { apiFetch } from '@softfact/api4d-react'
 import type { Itinerary, ItineraryFilters } from '../types/itinerary'
 import type { Paginated } from '../types/common'
 

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth, ApiError, REDIRECT_AFTER_LOGIN_KEY } from '@/lib/api4d'
+import { useAuth, ApiError, REDIRECT_AFTER_LOGIN_KEY } from '@softfact/api4d-react'
 import { login as apiLogin } from '../api/auth'
 
 export function LoginPage() {

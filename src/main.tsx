@@ -8,7 +8,7 @@ import {
   _setModuleConfig,
   setForceLogoutCleanup,
   type API4DConfig,
-} from '@/lib/api4d'
+} from '@softfact/api4d-react'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import './index.css'
 import App from './App.tsx'

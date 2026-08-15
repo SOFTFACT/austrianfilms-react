@@ -9,7 +9,7 @@ import {
   Menu,
   type LucideIcon,
 } from 'lucide-react'
-import { useAuth } from '@/lib/api4d'
+import { useAuth } from '@softfact/api4d-react'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import {

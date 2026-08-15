@@ -1,5 +1,5 @@
 import { getItineraries } from '../api/itineraries'
-import { usePagedList } from '@/lib/api4d'
+import { usePagedList } from '@softfact/api4d-react'
 import type { Itinerary, ItineraryFilters } from '../types/itinerary'
 
 export function useItinerariesInfinite(filters: ItineraryFilters = {}) {

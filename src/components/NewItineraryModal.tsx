@@ -6,7 +6,7 @@ import { getFestivals } from '../api/festivals'
 import { createItinerary, type NewItineraryBody } from '../api/itineraries'
 import { ITINERARY_STATUSES } from '../types/itinerary'
 import { useDebounce } from '../hooks/useDebounce'
-import type { ApiError } from '@/lib/api4d'
+import type { ApiError } from '@softfact/api4d-react'
 
 interface Picked {
   id: string

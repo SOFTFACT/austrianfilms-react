@@ -1,5 +1,5 @@
-import { apiFetch } from '@/lib/api4d'
-import type { AuthUser, LoginSuccess } from '@/lib/api4d'
+import { apiFetch } from '@softfact/api4d-react'
+import type { AuthUser, LoginSuccess } from '@softfact/api4d-react'
 
 // AustrianFilms auth endpoints. The shared lib/api4d handles refresh +
 // Bearer attachment + ApiError parsing — these functions only declare the

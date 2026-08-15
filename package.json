@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@softfact/api4d-react": "file:../api4d-react",
     "@tanstack/react-query": "^5.100.10",
     "@tanstack/react-virtual": "^3.13.24",
     "class-variance-authority": "^0.7.1",

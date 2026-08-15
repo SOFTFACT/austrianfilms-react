@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getPersons, getPerson } from '../api/persons'
-import { usePagedList } from '@/lib/api4d'
+import { usePagedList } from '@softfact/api4d-react'
 import type { Person, PersonFilters } from '../types/person'
 
 export function usePersonsInfinite(filters: PersonFilters = {}) {

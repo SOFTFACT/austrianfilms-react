@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { createFilm, updateFilm, type FilmWriteBody } from '../api/films'
 import type { Film } from '../types/film'
-import type { ApiError } from '@/lib/api4d'
+import type { ApiError } from '@softfact/api4d-react'
 
 /** All writable film fields as form strings (number fields kept as text). */
 export interface FilmFormState {
