@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth, ApiError, REDIRECT_AFTER_LOGIN_KEY } from '@softfact/api4d-react'
-import { login as apiLogin } from '../api/auth'
+import { login as apiLogin, me as apiMe } from '../api/auth'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -39,7 +39,17 @@ export function LoginPage() {
       const expAt = r.expires_in
         ? new Date(Date.now() + r.expires_in * 1000).toISOString()
         : null
+      // The login payload carries {id, username, role} but no `groups`, and
+      // its role is the pre-resolver default — only /auth/me runs the host's
+      // group resolver. Store the session first (apiFetch reads the bearer
+      // token from storage), then replace the user with the resolved one, so
+      // any group-aware UI sees the real membership instead of nothing.
       setAuth(r.token, r.user, expAt, r.refresh_token)
+      try {
+        setAuth(r.token, await apiMe(), expAt, r.refresh_token)
+      } catch {
+        /* /auth/me unreachable — keep the login payload; the backend still gates */
+      }
       navigate(from, { replace: true })
     } catch (err) {
       setError(
