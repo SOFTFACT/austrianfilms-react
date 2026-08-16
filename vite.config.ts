@@ -9,6 +9,12 @@ import path from 'node:path'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
+    // @softfact/api4d-react is linked from a sibling checkout that carries its
+    // own node_modules/react. Without dedupe a production build can bundle a
+    // SECOND React copy: the app then mounts into an empty root, renders
+    // nothing and logs nothing — a white page the dev server never shows.
+    // (Hit ecoline-react on 2026-08-16.)
+    dedupe: ['react', 'react-dom'],
     alias: { '@': path.resolve(__dirname, './src') },
   },
   server: {
