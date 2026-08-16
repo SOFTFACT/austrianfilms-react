@@ -14,7 +14,7 @@ export default defineConfig({
     // SECOND React copy: the app then mounts into an empty root, renders
     // nothing and logs nothing — a white page the dev server never shows.
     // (Hit ecoline-react on 2026-08-16.)
-    dedupe: ['react', 'react-dom'],
+    dedupe: ['react', 'react-dom', '@tanstack/react-query'],
     alias: { '@': path.resolve(__dirname, './src') },
   },
   server: {
