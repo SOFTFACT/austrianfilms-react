@@ -15,7 +15,8 @@ import { NewItineraryModal } from './NewItineraryModal'
 import { ItineraryFilterPanel } from './ItineraryFilterPanel'
 import { ExportMenu } from './ExportMenu'
 import { RowInlineDetail, ExpandAllButton, type DetailField } from './RowInlineDetail'
-import { SortHeader, nextSort, type SortState } from './SortHeader'
+import { SortHeader } from './SortHeader'
+import { nextSort, type SortState } from '../lib/sort'
 import {
   itineraryStatusClasses,
   type Itinerary,

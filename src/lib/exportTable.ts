@@ -39,10 +39,17 @@ function triggerDownload(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url)
 }
 
+/**
+ * UTF-8 byte order mark. Escaped rather than written literally: a bare U+FEFF
+ * is invisible in an editor and easily lost to a copy/paste or a whitespace
+ * cleanup, which would silently break umlauts in Excel again.
+ */
+const UTF8_BOM = '\uFEFF'
+
 export function downloadCsv<T>(filename: string, columns: ExportColumn<T>[], rows: T[]): void {
   const csv = rowsToCsv(columns, rows)
-  // Prepend a UTF-8 BOM (﻿) so Excel reads umlauts/diacritics correctly.
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  // Excel only reads umlauts/diacritics correctly when the file starts with a BOM.
+  const blob = new Blob([UTF8_BOM + csv], { type: 'text/csv;charset=utf-8;' })
   triggerDownload(blob, filename)
 }
 

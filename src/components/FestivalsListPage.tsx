@@ -13,7 +13,8 @@ import { cn } from '../lib/utils'
 import { Flag } from './Flag'
 import { ExportMenu } from './ExportMenu'
 import { RowInlineDetail, ExpandAllButton, type DetailField } from './RowInlineDetail'
-import { SortHeader, nextSort, type SortState } from './SortHeader'
+import { SortHeader } from './SortHeader'
+import { nextSort, type SortState } from '../lib/sort'
 import { festivalRatingLabel, type Festival, type FestivalFilters } from '../types/festival'
 
 /** Expanded row-detail fields — mirrors the /hq/festivals tabulator row-detail. */
