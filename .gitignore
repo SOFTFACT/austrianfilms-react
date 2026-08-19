@@ -13,6 +13,13 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# E2E — saved sessions, reports and local credentials never belong in git
+e2e/.auth
+playwright-report
+test-results
+blob-report
+.env.e2e
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

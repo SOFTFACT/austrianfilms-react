@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api4d'
+import { apiFetch } from '@softfact/api4d-react'
 import type { Festival, FestivalFilters } from '../types/festival'
 import type { Paginated } from '../types/common'
 

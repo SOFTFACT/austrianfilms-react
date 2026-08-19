@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api4d'
+import { apiFetch } from '@softfact/api4d-react'
 import type { Person, PersonFilters } from '../types/person'
 import type { Paginated } from '../types/common'
 

@@ -1,13 +1,39 @@
-import { useEffect, useState } from 'react'
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Clapperboard, Award, Route as RouteIcon, Users, LogOut, Menu, X, type LucideIcon } from 'lucide-react'
-import { useAuth } from '@/lib/api4d'
-import { cn } from '../lib/utils'
+import {
+  LayoutDashboard,
+  Clapperboard,
+  Award,
+  Route as RouteIcon,
+  Users,
+  LogOut,
+  Menu,
+  type LucideIcon,
+} from 'lucide-react'
+import { useAuth } from '@softfact/api4d-react'
+import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar'
 
 interface NavItem {
   to: string
   label: string
   icon: LucideIcon
+  /** Exact-match only — for '/', which would otherwise prefix-match everything. */
   end?: boolean
 }
 
@@ -19,37 +45,33 @@ const navItems: NavItem[] = [
   { to: '/persons', label: 'Persons', icon: Users },
 ]
 
-function NavLinks({ onNavTap }: { onNavTap?: () => void }) {
+/** Path-active test (react-router NavLink semantics). */
+function useIsActive() {
+  const { pathname } = useLocation()
+  return (to: string, end?: boolean) =>
+    end ? pathname === to : pathname === to || pathname.startsWith(to + '/')
+}
+
+/** Active row = sidebar-primary; overrides the primitive's default
+ *  accent-based active style so active ≠ hover. */
+const activeRow =
+  'data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:hover:bg-sidebar-primary data-[active=true]:hover:text-sidebar-primary-foreground'
+
+function FlatNavRow({ item }: { item: NavItem }) {
+  const active = useIsActive()(item.to, item.end)
   return (
-    <>
-      {navItems.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          end={item.end}
-          onClick={() => onNavTap?.()}
-          className={({ isActive }) =>
-            cn(
-              'mb-0.5 flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors',
-              isActive
-                ? 'bg-slate-700/60 text-white'
-                : 'text-slate-300 hover:bg-slate-800 hover:text-white',
-            )
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <item.icon className={cn('h-4 w-4', isActive ? 'text-white' : 'text-slate-400')} />
-              <span className="flex-1">{item.label}</span>
-            </>
-          )}
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild isActive={active} tooltip={item.label} className={activeRow}>
+        <NavLink to={item.to} end={item.end}>
+          <item.icon />
+          <span>{item.label}</span>
         </NavLink>
-      ))}
-    </>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   )
 }
 
-function SidebarContent({ onNavTap }: { onNavTap?: () => void }) {
+function AppSidebar() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
 
@@ -62,105 +84,149 @@ function SidebarContent({ onNavTap }: { onNavTap?: () => void }) {
 
   function handleLogout() {
     logout()
-    onNavTap?.()
     navigate('/login', { replace: true })
   }
 
   return (
-    <>
-      <div className="border-b border-slate-800 px-5 py-4">
-        <div className="font-bold tracking-tight text-white">Austrian Films</div>
-        <div className="mt-0.5 text-xs text-slate-400">Backoffice</div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-3">
-        <div className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-          Navigation
+    <Sidebar collapsible="icon" className="border-r-sidebar">
+      <SidebarHeader>
+        {/* Panel trigger (left) · brand text (flex-1). Collapsed to the icon
+            rail only the centred trigger remains, so it stays a reachable
+            expand button. */}
+        <div className="flex items-center gap-2 px-1 py-1 group-data-[collapsible=icon]:px-0">
+          <SidebarTrigger className="shrink-0 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:mx-auto" />
+          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+            <div className="truncate font-bold leading-tight tracking-tight text-sidebar-foreground">
+              Austrian Films
+            </div>
+            <div className="truncate text-xs leading-tight text-sidebar-foreground/60">
+              Backoffice
+            </div>
+          </div>
         </div>
-        <NavLinks onNavTap={onNavTap} />
-      </div>
+      </SidebarHeader>
 
-      <div className="border-t border-slate-800 p-3">
-        <div className="flex items-center gap-2.5 px-2 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-rose-600 text-xs font-bold text-white">
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarMenu>
+            {navItems.map((item) => (
+              <FlatNavRow key={item.to} item={item} />
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter>
+        <div className="flex items-center gap-2.5 px-1 py-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          {/* Deliberate literal accent: the avatar gradient is a brand mark,
+              not a themed surface. */}
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-rose-600 text-xs font-bold text-white">
             {initials}
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium text-white">{user?.username ?? 'User'}</div>
-            <div className="text-xs text-slate-400">{user?.role ?? 'user'}</div>
+          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+            <div className="truncate text-sm font-medium text-sidebar-foreground">
+              {user?.username ?? 'User'}
+            </div>
+            <div className="truncate text-xs text-sidebar-foreground/60">{user?.role ?? 'user'}</div>
           </div>
         </div>
+        {/* Expanded: logout (flex-1) + theme toggle in one row. Collapsed to
+            the icon rail: logout as an icon button with a tooltip; theme
+            toggle hidden (reachable after expanding). */}
+        <div className="flex items-center gap-1.5 group-data-[collapsible=icon]:flex-col">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:justify-center"
+            title="Sign out"
+          >
+            <LogOut className="size-4 shrink-0" />
+            <span className="group-data-[collapsible=icon]:hidden">Sign out</span>
+          </button>
+          <ThemeToggle className="shrink-0 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
+        </div>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  )
+}
 
-        <button
-          onClick={handleLogout}
-          className="mt-2 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </button>
-      </div>
-    </>
+/** Mobile hamburger — reveals the off-canvas nav sheet. */
+function NavToggle({ className }: { className?: string }) {
+  const { toggleSidebar } = useSidebar()
+  return (
+    <button
+      type="button"
+      onClick={toggleSidebar}
+      aria-label="Toggle navigation"
+      className={cn(
+        'rounded-md p-2 text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground',
+        className,
+      )}
+    >
+      <Menu className="h-5 w-5" />
+    </button>
   )
 }
 
 export function Layout() {
-  const location = useLocation()
-  const [drawerOpen, setDrawerOpen] = useState(false)
-
-  useEffect(() => {
-    setDrawerOpen(false)
-  }, [location.pathname])
-
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      {/* Mobile top bar */}
-      <header className="fixed left-0 right-0 top-0 z-30 flex h-12 items-center justify-between border-b border-slate-800 bg-slate-900 px-3 text-white md:hidden">
-        <button
-          onClick={() => setDrawerOpen(true)}
-          aria-label="Open navigation"
-          className="-ml-2 rounded p-2 hover:bg-slate-800"
+    <SidebarProvider>
+      {/* Desktop: full shadcn sidebar (collapsible icon rail). Mobile: the
+          sidebar becomes an off-canvas sheet, opened from the dark top bar;
+          quick nav lives in the fixed bottom tab bar below. */}
+      <AppSidebar />
+      {/* min-w-0 lets the main area shrink below its content's min-content
+          width so wide children clip instead of forcing a page-wide scrollbar. */}
+      <SidebarInset className="min-w-0">
+        {/* Mobile dark top bar — fixed; <main> reserves pt-12 to compensate. */}
+        <header className="fixed left-0 right-0 top-0 z-30 flex h-12 items-center justify-between border-b border-sidebar-border bg-sidebar px-3 text-sidebar-foreground md:hidden">
+          <NavToggle className="-ml-1" />
+          <div className="text-sm font-bold tracking-tight">Austrian Films</div>
+          <ThemeToggle className="-mr-1 text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground" />
+        </header>
+
+        {/* Main — reserves only the mobile top + bottom bar heights; each page
+            brings its own padding. */}
+        <main className="min-w-0 flex-1 pb-16 pt-12 md:pb-0 md:pt-0">
+          <Outlet />
+        </main>
+
+        {/* Mobile bottom tab bar. pb-5 = iOS safe-area. */}
+        <nav
+          className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-sidebar-border bg-sidebar px-2 pb-5 pt-2 md:hidden"
+          aria-label="Primary"
         >
-          <Menu className="h-5 w-5" />
-        </button>
-        <div className="text-sm font-bold tracking-tight">Austrian Films</div>
-        <div className="w-9" aria-hidden="true" />
-      </header>
-
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 z-30 hidden h-screen w-64 flex-shrink-0 flex-col bg-slate-900 text-sm text-white md:flex">
-        <SidebarContent />
-      </aside>
-
-      {/* Mobile drawer */}
-      {drawerOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-50 bg-black/50 md:hidden"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden="true"
-          />
-          <aside
-            className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-slate-900 text-sm text-white shadow-2xl md:hidden"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Navigation"
-          >
-            <button
-              onClick={() => setDrawerOpen(false)}
-              aria-label="Close navigation"
-              className="absolute right-3 top-3 z-10 rounded p-1.5 hover:bg-slate-800"
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className="flex flex-1 flex-col items-center gap-0.5 py-1"
             >
-              <X className="h-5 w-5" />
-            </button>
-            <SidebarContent onNavTap={() => setDrawerOpen(false)} />
-          </aside>
-        </>
-      )}
-
-      {/* Main content */}
-      <main className="min-w-0 flex-1 pt-12 md:pt-0">
-        <Outlet />
-      </main>
-    </div>
+              {({ isActive }) => (
+                <>
+                  <item.icon
+                    className={cn(
+                      'h-5 w-5',
+                      isActive ? 'text-sidebar-foreground' : 'text-sidebar-foreground/50',
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      'mt-0.5 text-[10px] leading-none',
+                      isActive ? 'text-sidebar-foreground' : 'text-sidebar-foreground/50',
+                    )}
+                  >
+                    {item.label}
+                  </span>
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }

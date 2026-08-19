@@ -1,5 +1,5 @@
-import { apiFetch } from '@/lib/api4d'
-import type { AuthUser, LoginSuccess } from '@/lib/api4d'
+import { apiFetch } from '@softfact/api4d-react'
+import type { AuthUser, LoginSuccess } from '@softfact/api4d-react'
 
 // AustrianFilms auth endpoints. The shared lib/api4d handles refresh +
 // Bearer attachment + ApiError parsing — these functions only declare the
@@ -9,10 +9,16 @@ export interface LoginPayload {
   password: string
 }
 
+// skipAuth: login is pre-session, so a 401 is a normal "wrong credentials"
+// answer and not an expired session. Without it the shared client treats the
+// 401 as a dead session, attempts a silent refresh and then force-logs-out —
+// which hard-redirects to /login and wipes the error message before the user
+// ever sees why the sign-in failed.
 export function login(payload: LoginPayload): Promise<LoginSuccess> {
   return apiFetch<LoginSuccess>('/auth/login', {
     method: 'POST',
     body: JSON.stringify(payload),
+    skipAuth: true,
   })
 }
 

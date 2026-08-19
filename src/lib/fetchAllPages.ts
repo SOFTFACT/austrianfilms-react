@@ -30,7 +30,9 @@ export async function fetchAllPages<T>(
   const cap = opts.cap ?? 20000
   const rows: T[] = []
   let offset = 0
-  let total = 0
+  // Set from the first response before it is ever read — the loop always runs
+  // at least once, so there is no meaningful initial value to give it.
+  let total: number
 
   for (;;) {
     const page = await fetchPage(offset, pageSize)

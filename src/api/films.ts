@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api4d'
+import { apiFetch } from '@softfact/api4d-react'
 import type { Film, FilmFilters, Paginated } from '../types/film'
 
 function toQuery(f: FilmFilters): string {

@@ -13,9 +13,9 @@ import { PersonDetailPage } from './components/PersonDetailPage'
 function DashboardHome() {
   return (
     <div className="p-4 md:p-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Welcome to Austrian Films</h2>
-        <p className="mt-1 text-sm text-slate-600">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h2 className="text-lg font-semibold text-foreground">Welcome to Austrian Films</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
           Pick a section on the left: Films, Festivals or Itineraries.
         </p>
       </div>

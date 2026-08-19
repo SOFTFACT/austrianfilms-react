@@ -6,7 +6,7 @@ import { getFestivals } from '../api/festivals'
 import { createItinerary, type NewItineraryBody } from '../api/itineraries'
 import { ITINERARY_STATUSES } from '../types/itinerary'
 import { useDebounce } from '../hooks/useDebounce'
-import type { ApiError } from '@/lib/api4d'
+import type { ApiError } from '@softfact/api4d-react'
 
 interface Picked {
   id: string
@@ -36,11 +36,12 @@ function EntityPicker({
   })
 
   if (value) {
+    // Deliberate literal emerald: confirms a picked entity (status, not surface).
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm">
-        <Check className="h-4 w-4 text-emerald-600" />
-        <span className="min-w-0 flex-1 truncate text-slate-900">{value.label}</span>
-        <button type="button" onClick={() => onPick(null)} className="text-slate-400 hover:text-slate-700">
+      <div className="flex items-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm dark:border-emerald-900 dark:bg-emerald-950/40">
+        <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+        <span className="min-w-0 flex-1 truncate text-foreground">{value.label}</span>
+        <button type="button" onClick={() => onPick(null)} className="text-muted-foreground hover:text-foreground">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -50,23 +51,23 @@ function EntityPicker({
   return (
     <div>
       <div className="relative">
-        <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+        <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-slate-300 py-2 pl-8 pr-3 text-sm outline-none focus:border-slate-900"
+          className="w-full rounded-lg border border-border py-2 pl-8 pr-3 text-sm outline-none focus:border-ring"
         />
-        {isFetching && <Loader2 className="absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-slate-300" />}
+        {isFetching && <Loader2 className="absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-muted-foreground/60" />}
       </div>
       {dq.trim().length >= 2 && results.length > 0 && (
-        <div className="mt-1 max-h-44 overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="mt-1 max-h-44 overflow-y-auto rounded-lg border border-border bg-card shadow-sm">
           {results.map((r) => (
             <button
               key={r.id}
               type="button"
               onClick={() => onPick(r)}
-              className="block w-full truncate px-3 py-2 text-left text-sm hover:bg-slate-50"
+              className="block w-full truncate px-3 py-2 text-left text-sm hover:bg-muted"
             >
               {r.label}
             </button>
@@ -126,17 +127,17 @@ export function NewItineraryModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
-      <div className="mt-10 w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3">
-          <h2 className="text-base font-semibold text-slate-900">New itinerary</h2>
-          <button onClick={onClose} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+      <div className="mt-10 w-full max-w-lg rounded-xl border border-border bg-card shadow-xl">
+        <div className="flex items-center justify-between border-b border-border px-5 py-3">
+          <h2 className="text-base font-semibold text-foreground">New itinerary</h2>
+          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="space-y-3 px-5 py-4">
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">Film *</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Film *</label>
             <EntityPicker
               title="film"
               placeholder="Search film…"
@@ -146,7 +147,7 @@ export function NewItineraryModal({ onClose }: { onClose: () => void }) {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">Festival *</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Festival *</label>
             <EntityPicker
               title="festival"
               placeholder="Search festival…"
@@ -158,8 +159,8 @@ export function NewItineraryModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Status</label>
-              <select value={statusExtern} onChange={(e) => setStatusExtern(e.target.value)} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm">
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Status</label>
+              <select value={statusExtern} onChange={(e) => setStatusExtern(e.target.value)} className="w-full rounded-lg border border-border px-2 py-2 text-sm">
                 <option value="">—</option>
                 {ITINERARY_STATUSES.map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -167,49 +168,49 @@ export function NewItineraryModal({ onClose }: { onClose: () => void }) {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Country</label>
-              <input value={land} onChange={(e) => setLand(e.target.value)} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Country</label>
+              <input value={land} onChange={(e) => setLand(e.target.value)} className="w-full rounded-lg border border-border px-2 py-2 text-sm" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">From</label>
-              <input type="date" value={von} onChange={(e) => setVon(e.target.value)} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">From</label>
+              <input type="date" value={von} onChange={(e) => setVon(e.target.value)} className="w-full rounded-lg border border-border px-2 py-2 text-sm" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">To</label>
-              <input type="date" value={bis} onChange={(e) => setBis(e.target.value)} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">To</label>
+              <input type="date" value={bis} onChange={(e) => setBis(e.target.value)} className="w-full rounded-lg border border-border px-2 py-2 text-sm" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Section</label>
-              <input value={sektion} onChange={(e) => setSektion(e.target.value)} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Section</label>
+              <input value={sektion} onChange={(e) => setSektion(e.target.value)} className="w-full rounded-lg border border-border px-2 py-2 text-sm" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Submission via</label>
-              <input value={submissionVia} onChange={(e) => setSubmissionVia(e.target.value)} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Submission via</label>
+              <input value={submissionVia} onChange={(e) => setSubmissionVia(e.target.value)} className="w-full rounded-lg border border-border px-2 py-2 text-sm" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Screening fee</label>
-              <input value={screeningFee} onChange={(e) => setScreeningFee(e.target.value)} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Screening fee</label>
+              <input value={screeningFee} onChange={(e) => setScreeningFee(e.target.value)} className="w-full rounded-lg border border-border px-2 py-2 text-sm" />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">Public notes</label>
-            <textarea value={notesPublic} onChange={(e) => setNotesPublic(e.target.value)} rows={2} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Public notes</label>
+            <textarea value={notesPublic} onChange={(e) => setNotesPublic(e.target.value)} rows={2} className="w-full rounded-lg border border-border px-2 py-2 text-sm" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">Internal notes</label>
-            <textarea value={notesInternal} onChange={(e) => setNotesInternal(e.target.value)} rows={2} className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Internal notes</label>
+            <textarea value={notesInternal} onChange={(e) => setNotesInternal(e.target.value)} rows={2} className="w-full rounded-lg border border-border px-2 py-2 text-sm" />
           </div>
 
-          {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+          {error && <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-3">
-          <button onClick={onClose} className="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">Cancel</button>
+        <div className="flex justify-end gap-2 border-t border-border px-5 py-3">
+          <button onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted">Cancel</button>
           <button
             onClick={submit}
             disabled={saving}
-            className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
             Create

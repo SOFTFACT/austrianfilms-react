@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFilms, getFilm } from '../api/films'
-import { useInfiniteList } from '../components/virtual'
+import { usePagedList } from '@softfact/api4d-react'
 import type { Film, FilmFilters } from '../types/film'
 
 /**
@@ -10,7 +10,7 @@ import type { Film, FilmFilters } from '../types/film'
  */
 export function useFilmsInfinite(filters: FilmFilters = {}) {
   const limit = filters.limit ?? 100
-  return useInfiniteList<Film>({
+  return usePagedList<Film>({
     queryKey: ['films', 'infinite', { ...filters, limit }],
     fetchPage: (page) => getFilms({ ...filters, page, limit }),
     getItemId: (f) => f.id,

@@ -9,9 +9,9 @@ import { Flag } from './Flag'
 function Field({ label, value }: { label: string; value: ReactNode }) {
   if (value === undefined || value === null || value === '') return null
   return (
-    <div className="border-b border-slate-100 py-2">
-      <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
-      <dd className="mt-0.5 text-sm text-slate-900">{value}</dd>
+    <div className="border-b border-border py-2">
+      <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 text-sm text-foreground">{value}</dd>
     </div>
   )
 }
@@ -22,19 +22,19 @@ export function FestivalDetailPage() {
 
   return (
     <div className="p-4 md:p-6">
-      <Link to="/festivals" className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900">
+      <Link to="/festivals" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Back to festivals
       </Link>
 
       {isLoading ? (
-        <div className="flex justify-center py-12 text-slate-400"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        <div className="flex justify-center py-12 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
       ) : error || !f ? (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">Festival not found.</div>
+        <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">Festival not found.</div>
       ) : (
         <div className="grid gap-6 md:grid-cols-[260px_1fr]">
           <div className="space-y-4">
-            <div className="rounded-lg border border-slate-200 bg-white p-4">
-              <Flag code={f.countryCode} className="mb-2 h-6 w-9 rounded-sm border border-slate-200 object-cover" />
+            <div className="rounded-lg border border-border bg-card p-4">
+              <Flag code={f.countryCode} className="mb-2 h-6 w-9 rounded-sm border border-border object-cover" />
               <dl>
                 <Field label="City" value={f.ort} />
                 <Field label="Country" value={f.land || f.countryCode} />
@@ -56,8 +56,8 @@ export function FestivalDetailPage() {
               </dl>
             </div>
             {(f.earlyDeadline || f.regularDeadline || f.finalDeadline) && (
-              <div className="rounded-lg border border-slate-200 bg-white p-4">
-                <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Deadlines</div>
+              <div className="rounded-lg border border-border bg-card p-4">
+                <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Deadlines</div>
                 <dl>
                   <Field label="Early" value={formatDate(f.earlyDeadline)} />
                   <Field label="Regular" value={formatDate(f.regularDeadline)} />
@@ -68,14 +68,14 @@ export function FestivalDetailPage() {
           </div>
 
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">{f.festival || '—'}</h1>
-            {f.editionNr ? <p className="text-sm text-slate-500">{f.editionNr}. Edition</p> : null}
+            <h1 className="text-xl font-semibold text-foreground">{f.festival || '—'}</h1>
+            {f.editionNr ? <p className="text-sm text-muted-foreground">{f.editionNr}. Edition</p> : null}
             <dl className="mt-4">
               <Field label="Organization" value={f.firma} />
               <Field label="Organization (EN)" value={f.firmaEngl} />
               <Field
                 label="Email"
-                value={f.emailMain ? <a href={`mailto:${f.emailMain}`} className="text-blue-600 hover:underline">{f.emailMain}</a> : ''}
+                value={f.emailMain ? <a href={`mailto:${f.emailMain}`} className="text-blue-600 hover:underline dark:text-blue-400">{f.emailMain}</a> : ''}
               />
               <Field
                 label="Website"
@@ -85,7 +85,7 @@ export function FestivalDetailPage() {
                       href={f.websiteMain.startsWith('http') ? f.websiteMain : `https://${f.websiteMain}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-blue-600 hover:underline"
+                      className="text-blue-600 hover:underline dark:text-blue-400"
                     >
                       {f.websiteMain}
                     </a>
