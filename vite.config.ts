@@ -28,7 +28,7 @@ export default defineConfig({
     // nothing and logs nothing — a white page the dev server never shows.
     // (Hit ecoline-react on 2026-08-16.)
     dedupe: ['react', 'react-dom', '@tanstack/react-query'],
-    alias: { '@': path.resolve(__dirname, './src') },
+    alias: { '@': path.resolve(import.meta.dirname, './src') },
   },
   server: {
     // Own port (mirrors backend 8181) to avoid clashing with sibling frontends.
