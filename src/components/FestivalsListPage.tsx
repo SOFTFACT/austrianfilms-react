@@ -57,7 +57,7 @@ export function FestivalsListPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
-  const [sort, setSort] = useState<SortState>({ field: 'jahr', order: 'desc' })
+  const [sort, setSort] = useState<SortState>({ field: 'von', order: 'desc' }) // start date, not the year column: a few years are glued ranges (20192020)
   const toggleSort = (field: string) => setSort((s) => nextSort(s, field))
   const { isExpanded, toggle, expandAll, collapseAll } = useExpandableRows()
 
