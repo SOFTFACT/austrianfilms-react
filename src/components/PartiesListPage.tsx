@@ -80,7 +80,8 @@ export function PartiesListPage() {
     <div className="flex flex-col">
       <div className="sticky top-12 z-10 border-b border-border bg-muted/95 px-4 py-3 backdrop-blur md:top-0 md:px-6">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-lg font-semibold text-foreground">Parties</h1>
+          {/* the heading matches the menu: the editors' word is Contacts; the code stays party */}
+          <h1 className="text-lg font-semibold text-foreground">Contacts</h1>
           <span className="text-sm text-muted-foreground">{total.toLocaleString()} total</span>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-1 py-1" aria-label="View">
