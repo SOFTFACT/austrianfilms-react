@@ -42,7 +42,7 @@ const navItems: NavItem[] = [
   { to: '/films', label: 'Films', icon: Clapperboard },
   { to: '/festivals', label: 'Festivals', icon: Award },
   { to: '/itineraries', label: 'Itineraries', icon: RouteIcon },
-  { to: '/persons', label: 'Persons', icon: Users },
+  { to: '/contacts', label: 'Contacts', icon: Users },
 ]
 
 /** Path-active test (react-router NavLink semantics). */

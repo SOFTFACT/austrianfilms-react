@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Layout } from './components/Layout'
 import { LoginPage } from './components/LoginPage'
@@ -7,8 +7,14 @@ import { FilmDetailPage } from './components/FilmDetailPage'
 import { FestivalsListPage } from './components/FestivalsListPage'
 import { FestivalDetailPage } from './components/FestivalDetailPage'
 import { ItinerariesListPage } from './components/ItinerariesListPage'
-import { PersonsListPage } from './components/PersonsListPage'
-import { PersonDetailPage } from './components/PersonDetailPage'
+import { PartiesListPage } from './components/PartiesListPage'
+import { PartyDetailPage } from './components/PartyDetailPage'
+
+/** Party.id IS the old personen_id, so an old person link lands on the same row. */
+function PartyRedirect() {
+  const { id } = useParams()
+  return <Navigate to={`/contacts/${id}`} replace />
+}
 
 function DashboardHome() {
   return (
@@ -16,7 +22,7 @@ function DashboardHome() {
       <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-semibold text-foreground">Welcome to Austrian Films</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Pick a section on the left: Films, Festivals or Itineraries.
+          Pick a section on the left: Films, Festivals, Itineraries, Contacts.
         </p>
       </div>
     </div>
@@ -40,8 +46,11 @@ function App() {
         <Route path="/festivals" element={<FestivalsListPage />} />
         <Route path="/festivals/:id" element={<FestivalDetailPage />} />
         <Route path="/itineraries" element={<ItinerariesListPage />} />
-        <Route path="/persons" element={<PersonsListPage />} />
-        <Route path="/persons/:id" element={<PersonDetailPage />} />
+        <Route path="/contacts" element={<PartiesListPage />} />
+        <Route path="/contacts/:id" element={<PartyDetailPage />} />
+        {/* the persons screen read the frozen legacy table; its links keep working */}
+        <Route path="/persons" element={<Navigate to="/contacts" replace />} />
+        <Route path="/persons/:id" element={<PartyRedirect />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
