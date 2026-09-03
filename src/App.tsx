@@ -13,7 +13,7 @@ import { PartyDetailPage } from './components/PartyDetailPage'
 /** Party.id IS the old personen_id, so an old person link lands on the same row. */
 function PartyRedirect() {
   const { id } = useParams()
-  return <Navigate to={`/contacts/${id}`} replace />
+  return <Navigate to={`/parties/${id}`} replace />
 }
 
 function DashboardHome() {
@@ -22,7 +22,7 @@ function DashboardHome() {
       <div className="rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-semibold text-foreground">Welcome to Austrian Films</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Pick a section on the left: Films, Festivals, Itineraries, Contacts.
+          Pick a section on the left: Films, Festivals, Itineraries, Contacts (parties).
         </p>
       </div>
     </div>
@@ -46,10 +46,10 @@ function App() {
         <Route path="/festivals" element={<FestivalsListPage />} />
         <Route path="/festivals/:id" element={<FestivalDetailPage />} />
         <Route path="/itineraries" element={<ItinerariesListPage />} />
-        <Route path="/contacts" element={<PartiesListPage />} />
-        <Route path="/contacts/:id" element={<PartyDetailPage />} />
+        <Route path="/parties" element={<PartiesListPage />} />
+        <Route path="/parties/:id" element={<PartyDetailPage />} />
         {/* the persons screen read the frozen legacy table; its links keep working */}
-        <Route path="/persons" element={<Navigate to="/contacts" replace />} />
+        <Route path="/persons" element={<Navigate to="/parties" replace />} />
         <Route path="/persons/:id" element={<PartyRedirect />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

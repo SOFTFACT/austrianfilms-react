@@ -42,7 +42,9 @@ const navItems: NavItem[] = [
   { to: '/films', label: 'Films', icon: Clapperboard },
   { to: '/festivals', label: 'Festivals', icon: Award },
   { to: '/itineraries', label: 'Itineraries', icon: RouteIcon },
-  { to: '/contacts', label: 'Contacts', icon: Users },
+  // The menu says Contacts — the editors' word. Everything behind it stays
+  // "party" (routes, files, API) until the legacy contacts resource is renamed.
+  { to: '/parties', label: 'Contacts', icon: Users },
 ]
 
 /** Path-active test (react-router NavLink semantics). */

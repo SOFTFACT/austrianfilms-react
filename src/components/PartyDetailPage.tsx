@@ -78,8 +78,8 @@ export function PartyDetailPage() {
 
   return (
     <div className="p-4 md:p-6">
-      <Link to="/contacts" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Back to contacts
+      <Link to="/parties" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Back to parties
       </Link>
 
       {isLoading ? (
@@ -167,7 +167,7 @@ export function PartyDetailPage() {
                   {p.relations.map((r) => (
                     <li key={r.relationshipId} className="flex items-center gap-3 px-3 py-1.5 text-sm">
                       <KindIcon kind={r.other.kind} className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      <Link to={`/contacts/${r.other.id}`} className="truncate text-blue-600 hover:underline dark:text-blue-400">{r.other.displayName}</Link>
+                      <Link to={`/parties/${r.other.id}`} className="truncate text-blue-600 hover:underline dark:text-blue-400">{r.other.displayName}</Link>
                       <span className="text-xs text-muted-foreground">{r.roleName}{r.roleNote ? ` · ${r.roleNote}` : ''}</span>
                       {r.verifiedAt && <span className="ml-auto text-xs text-green-700 dark:text-green-400">verified</span>}
                     </li>

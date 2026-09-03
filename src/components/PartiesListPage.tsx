@@ -80,7 +80,7 @@ export function PartiesListPage() {
     <div className="flex flex-col">
       <div className="sticky top-12 z-10 border-b border-border bg-muted/95 px-4 py-3 backdrop-blur md:top-0 md:px-6">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-lg font-semibold text-foreground">Contacts</h1>
+          <h1 className="text-lg font-semibold text-foreground">Parties</h1>
           <span className="text-sm text-muted-foreground">{total.toLocaleString()} total</span>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-1 py-1" aria-label="View">
@@ -112,7 +112,7 @@ export function PartiesListPage() {
               />
             </div>
             <ExportMenu<PartyRow>
-              filenameBase="contacts"
+              filenameBase="parties"
               columns={EXPORT_COLUMNS}
               loadRows={(onProgress) =>
                 fetchAllPages<PartyRow>(
@@ -130,7 +130,7 @@ export function PartiesListPage() {
           <div className="flex justify-center py-12 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : error ? (
           <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {(error as { title?: string })?.title ?? 'Failed to load contacts.'}
+            {(error as { title?: string })?.title ?? 'Failed to load parties.'}
           </div>
         ) : items.length === 0 ? (
           <div className="py-12 text-center text-sm text-muted-foreground">No entries found.</div>
@@ -145,7 +145,7 @@ export function PartiesListPage() {
             hasNextPage={hasNextPage}
             isFetchingNextPage={isFetchingNextPage}
             fetchNextPage={fetchNextPage}
-            renderItem={(p) => <PartyCard p={p} onClick={() => navigate(`/contacts/${p.id}`)} />}
+            renderItem={(p) => <PartyCard p={p} onClick={() => navigate(`/parties/${p.id}`)} />}
           />
         ) : (
           <VirtualList<PartyRow>
@@ -157,7 +157,7 @@ export function PartiesListPage() {
             fetchNextPage={fetchNextPage}
             renderItem={(p) => (
               <button
-                onClick={() => navigate(`/contacts/${p.id}`)}
+                onClick={() => navigate(`/parties/${p.id}`)}
                 className="flex h-14 w-full items-center gap-3 border-b border-border bg-card px-3 text-left hover:bg-muted"
               >
                 <Avatar p={p} size="h-9 w-9" />
