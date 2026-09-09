@@ -109,7 +109,7 @@ export function PartiesListPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search name…"
-                className="w-40 rounded-lg border border-border py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-56"
+                className="w-40 rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-56"
               />
             </div>
             <ExportMenu<PartyRow>

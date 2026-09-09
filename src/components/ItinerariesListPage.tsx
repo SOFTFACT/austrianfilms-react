@@ -115,7 +115,7 @@ export function ItinerariesListPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search film, festival…"
-                className="w-44 rounded-lg border border-border py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-60"
+                className="w-44 rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-60"
               />
             </div>
             <button

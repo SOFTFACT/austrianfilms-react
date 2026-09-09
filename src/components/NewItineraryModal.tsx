@@ -56,7 +56,7 @@ function EntityPicker({
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-border py-2 pl-8 pr-3 text-sm outline-none focus:border-ring"
+          className="w-full rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm outline-none focus:border-ring"
         />
         {isFetching && <Loader2 className="absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-muted-foreground/60" />}
       </div>

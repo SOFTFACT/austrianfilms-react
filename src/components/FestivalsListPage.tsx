@@ -86,7 +86,7 @@ export function FestivalsListPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search festival, city, country…"
-                className="w-56 rounded-lg border border-border py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-72"
+                className="w-56 rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-72"
               />
             </div>
             <ExpandAllButton allExpanded={allExpanded} onToggle={toggleAll} />
