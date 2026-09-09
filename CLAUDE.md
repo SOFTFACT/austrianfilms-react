@@ -45,16 +45,17 @@ Auth lives in `src/lib/api4d/` (shared component layer):
 - RFC 7807 problem bodies surfaced via `ApiError.detail`
 - terminal 401 → `forceLogout()` → redirect `/login`
 
-## Deployment — Caddy
-Caddy on the Windows prod box (`app.af.softfact.com`) serves the static build
-and proxies `/api` + `/mcp` + `/getimage` to the 4D server on `localhost:8181`.
+## Deployment — with the 4D repo (since 2026-09-09)
+`npm run build` writes to `../AustrianFilms/WebFolder/app` (vite `outDir`,
+`base: '/app/'`). Commit that output in the AustrianFilms repo as
+`build(webfolder): <what changed>`; a `git pull` on the server deploys it.
+4D serves the SPA at `/app/…` via `HTTP_AF_App` (HTTPHandlers.json entry
+`^/app(?:/.*)?$`): existing files under WebFolder/app are returned as-is
+(hashed assets immutable), every other path gets index.html (no-cache).
+`app.af.softfact.com` is a permanent redirect to `af.softfact.com/app`.
 
-```bash
-npm run deploy   # build → zip → reveal in Finder (scripts/deploy.mjs)
-```
-
-Transfer `austrianfilms-react-dist.zip` via TeamViewer/RDP and unzip into
-`C:\Caddy\austrianfilms-react`.
+The prefix is derived from `import.meta.env.BASE_URL` in `src/main.tsx`
+(router `basename`, `loginRoute`); never hard-code `/app` in components.
 
 ## Structure
 ```

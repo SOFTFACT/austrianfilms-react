@@ -21,22 +21,22 @@ async function signIn(page: import('@playwright/test').Page, password: string) {
 }
 
 test('a protected route bounces to the login form', async ({ page }) => {
-  await page.goto('/films')
+  await page.goto('/app/films')
 
   await expect(page).toHaveURL(/\/login$/)
   await expect(page.getByText('Backoffice — please sign in.')).toBeVisible()
 })
 
 test('valid credentials land on the dashboard', async ({ page }) => {
-  await page.goto('/login')
+  await page.goto('/app/login')
   await signIn(page, PASSWORD)
 
   await expect(page.getByRole('heading', { name: 'Welcome to Austrian Films' })).toBeVisible()
-  await expect(page).toHaveURL(/localhost:5181\/$/)
+  await expect(page).toHaveURL(/localhost:5181\/app\/?$/)
 })
 
 test('a wrong password surfaces the server message and stays on the form', async ({ page }) => {
-  await page.goto('/login')
+  await page.goto('/app/login')
   await signIn(page, 'definitely-wrong')
 
   // The page renders the RFC 7807 `detail` from the backend verbatim.
@@ -45,7 +45,7 @@ test('a wrong password surfaces the server message and stays on the form', async
 })
 
 test('after login the user returns to the deep link they asked for', async ({ page }) => {
-  await page.goto('/festivals')
+  await page.goto('/app/festivals')
   await expect(page).toHaveURL(/\/login$/)
 
   await signIn(page, PASSWORD)
@@ -57,14 +57,16 @@ test('after login the user returns to the deep link they asked for', async ({ pa
 test('a stashed redirect path (mid-session expiry) wins over the dashboard', async ({ page }) => {
   // Simulate what forceLogout leaves behind when a session dies mid-session:
   // router state is gone, only sessionStorage carries the return path.
-  await page.goto('/login')
-  await page.evaluate(() => sessionStorage.setItem('api4d_redirect_after_login', '/persons'))
+  await page.goto('/app/login')
+  // forceLogout stores window.location.pathname, prefix included — the app
+  // must strip it before handing the path to the router (lib/base.ts).
+  await page.evaluate(() => sessionStorage.setItem('api4d_redirect_after_login', '/app/parties'))
   await page.reload()
 
   await signIn(page, PASSWORD)
 
-  await expect(page).toHaveURL(/\/persons$/)
-  await expect(page.getByRole('heading', { name: 'Persons' })).toBeVisible()
+  await expect(page).toHaveURL(/\/app\/parties$/)
+  await expect(page.getByRole('heading', { name: 'Contacts' })).toBeVisible()
   // Consumed on read — a later login must not be hijacked by a stale value.
   expect(await page.evaluate(() => sessionStorage.getItem('api4d_redirect_after_login'))).toBeNull()
 })

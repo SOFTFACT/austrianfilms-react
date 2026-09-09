@@ -17,9 +17,22 @@ const proxy = {
   '/getimage': { target: BACKEND, changeOrigin: true },
   // Static country flag SVGs served from the 4D web root (WebFolder/flags).
   '/flags': { target: BACKEND, changeOrigin: true },
+  // Site images from the 4D web root (favicon).
+  '/images': { target: BACKEND, changeOrigin: true },
 }
 
 export default defineConfig({
+  // The backoffice lives under /app on the 4D host (af.softfact.com/app), the
+  // way ArtDimensions serves its SPA from the 4D web root. `base` applies to
+  // dev, preview and build alike, so a path bug shows up locally too.
+  base: '/app/',
+  build: {
+    // The build lands in the 4D repo's WebFolder and is committed there:
+    // a git pull on the server deploys frontend and backend together.
+    // 4D serves it through HTTP_AF_App (index.html for routes, files for assets).
+    outDir: '../AustrianFilms/WebFolder/app',
+    emptyOutDir: true,
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     // @softfact/api4d-react is linked from a sibling checkout that carries its

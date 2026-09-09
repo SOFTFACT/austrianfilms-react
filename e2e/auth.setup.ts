@@ -56,7 +56,7 @@ setup('authenticate', async ({ page }) => {
   // Plant the session the way the app itself would (see api4d/authState.ts).
   // Both token AND user must be present — AuthProvider derives
   // isAuthenticated from the pair, so a missing user reads as logged out.
-  await page.goto('/login')
+  await page.goto('/app/login')
   await page.evaluate(
     ({ body, KEYS }) => {
       localStorage.setItem(KEYS.token, body.token!)
@@ -74,7 +74,7 @@ setup('authenticate', async ({ page }) => {
 
   // Prove the planted session actually authenticates before saving it —
   // otherwise every spec fails later with a confusing redirect to /login.
-  await page.goto('/')
+  await page.goto('/app/')
   await expect(page.getByRole('heading', { name: 'Welcome to Austrian Films' })).toBeVisible()
 
   await page.context().storageState({ path: AUTH_FILE })

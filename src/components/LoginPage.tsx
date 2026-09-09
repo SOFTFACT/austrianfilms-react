@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth, ApiError, REDIRECT_AFTER_LOGIN_KEY } from '@softfact/api4d-react'
+import { stripBase } from '@/lib/base'
 import { login as apiLogin, me as apiMe } from '../api/auth'
 
 export function LoginPage() {
@@ -22,7 +23,9 @@ export function LoginPage() {
       const stashed = sessionStorage.getItem(REDIRECT_AFTER_LOGIN_KEY)
       if (stashed) {
         sessionStorage.removeItem(REDIRECT_AFTER_LOGIN_KEY)
-        return stashed
+        // forceLogout stores window.location.pathname, which carries the /app
+        // prefix; navigate() adds the router basename again, so strip it here.
+        return stripBase(stashed)
       }
     } catch {
       /* sessionStorage unavailable — fall through */

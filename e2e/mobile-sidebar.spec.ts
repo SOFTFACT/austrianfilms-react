@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test'
 
 test('narrow viewport renders the sidebar as an off-canvas sheet', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/films')
+  await page.goto('/app/films')
   await expect(page.getByRole('heading', { name: 'Films' })).toBeVisible()
 
   const sheet = page.locator('[data-slot="sidebar"][data-mobile="true"]')
@@ -30,7 +30,7 @@ test('narrow viewport renders the sidebar as an off-canvas sheet', async ({ page
 
 test('wide viewport renders the desktop rail, no sheet', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
-  await page.goto('/films')
+  await page.goto('/app/films')
 
   await expect(page.locator('[data-slot="sidebar-container"]')).toBeVisible()
   await expect(page.locator('[data-slot="sidebar"][data-mobile="true"]')).toHaveCount(0)

@@ -5,19 +5,22 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { API4DProvider, AuthProvider, _setModuleConfig, type API4DConfig } from '@softfact/api4d-react'
 import { CacheFlushBinder } from '@/components/CacheFlushBinder'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { BASE } from '@/lib/base'
 import './index.css'
 import App from './App.tsx'
 
 // AustrianFilms-specific API4D-library configuration. Same shared lib as
 // MDS-Praxis (and, going forward, ECOline) — fixes to lib/api4d benefit all.
 // storagePrefix keeps the historical key name (austrianfilms_token).
+// Served under a path prefix (vite `base`, "/app/" here): the router and the
+// hard redirect to the login page both have to know it — see lib/base.ts.
 const config: API4DConfig = {
   apiBase: '/api/v1',
   storagePrefix: 'austrianfilms',
   refreshPath: '/auth/refresh',
   healthPath: '/health',
   logoutPath: '/auth/logout',
-  loginRoute: '/login',
+  loginRoute: `${BASE}/login`,
 }
 
 // The module-level cache is read by the non-React HTTP client. Set it
@@ -39,7 +42,7 @@ createRoot(document.getElementById('root')!).render(
       <API4DProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <BrowserRouter>
+            <BrowserRouter basename={BASE || undefined}>
               <CacheFlushBinder />
               <App />
             </BrowserRouter>

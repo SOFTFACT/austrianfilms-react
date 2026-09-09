@@ -22,12 +22,14 @@ npm run lint
 ## Deploy
 
 ```bash
-npm run deploy    # build → austrianfilms-react-dist.zip → reveal in Finder
+npm run build     # → ../AustrianFilms/WebFolder/app  (the 4D repo)
 ```
 
-Transfer the zip to the Windows prod box and unzip into
-`C:\Caddy\austrianfilms-react`, where Caddy serves it as
-`app.af.softfact.com` and proxies the API to the local 4D server.
+The build is committed in the **AustrianFilms** repo (`build(webfolder): …`)
+and reaches the server with the next `git pull` there — frontend and backend
+travel together. 4D serves it at `https://af.softfact.com/app/` through
+`HTTP_AF_App` (index.html for routes, files for the hashed assets);
+`app.af.softfact.com` redirects there. No zip, no RDP.
 
 ## UI
 

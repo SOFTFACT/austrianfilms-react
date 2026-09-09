@@ -19,7 +19,7 @@ async function total(page: import('@playwright/test').Page): Promise<number> {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/films')
+  await page.goto('/app/films')
   await expect(page.getByRole('heading', { name: 'Films' })).toBeVisible()
   await expect(rows(page).first()).toBeVisible({ timeout: 30_000 })
 })
