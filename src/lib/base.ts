@@ -1,7 +1,8 @@
 /**
- * The path prefix the app is served under — "/app" in this repo (vite `base`),
- * "" when served from a root. One place, derived from BASE_URL, so the router
- * basename, the hard login redirect and the post-login return path agree.
+ * The path prefix the app is served under — "" today (vite `base` is "/",
+ * the app owns app.af.softfact.com), "/something" if it ever moves under a
+ * prefix. One place, derived from BASE_URL, so the router basename, the hard
+ * login redirect and the post-login return path agree.
  */
 export const BASE = import.meta.env.BASE_URL.replace(/\/$/, '')
 

@@ -23,8 +23,8 @@ export function LoginPage() {
       const stashed = sessionStorage.getItem(REDIRECT_AFTER_LOGIN_KEY)
       if (stashed) {
         sessionStorage.removeItem(REDIRECT_AFTER_LOGIN_KEY)
-        // forceLogout stores window.location.pathname, which carries the /app
-        // prefix; navigate() adds the router basename again, so strip it here.
+        // forceLogout stores window.location.pathname, which would carry a
+        // path prefix; navigate() adds the router basename again, so strip it.
         return stripBase(stashed)
       }
     } catch {

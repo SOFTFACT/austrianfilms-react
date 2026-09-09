@@ -27,9 +27,10 @@ npm run build     # → ../AustrianFilms/WebFolder/app  (the 4D repo)
 
 The build is committed in the **AustrianFilms** repo (`build(webfolder): …`)
 and reaches the server with the next `git pull` there — frontend and backend
-travel together. 4D serves it at `https://af.softfact.com/app/` through
-`HTTP_AF_App` (index.html for routes, files for the hashed assets);
-`app.af.softfact.com` redirects there. No zip, no RDP.
+travel together. Caddy serves that folder as `https://app.af.softfact.com`
+and proxies `/api`, `/mcp`, `/getimage`, `/images` to 4D (CADDY/Caddyfile in
+the 4D repo). Locally the same setup runs at http://localhost:8091
+(`caddy run --config CADDY/Caddyfile.dev` in the 4D repo). No zip, no RDP.
 
 ## UI
 

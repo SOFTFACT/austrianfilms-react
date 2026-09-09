@@ -46,16 +46,16 @@ Auth lives in `src/lib/api4d/` (shared component layer):
 - terminal 401 → `forceLogout()` → redirect `/login`
 
 ## Deployment — with the 4D repo (since 2026-09-09)
-`npm run build` writes to `../AustrianFilms/WebFolder/app` (vite `outDir`,
-`base: '/app/'`). Commit that output in the AustrianFilms repo as
+`npm run build` writes to `../AustrianFilms/WebFolder/app` (vite
+`outDir`). Commit that output in the AustrianFilms repo as
 `build(webfolder): <what changed>`; a `git pull` on the server deploys it.
-4D serves the SPA at `/app/…` via `HTTP_AF_App` (HTTPHandlers.json entry
-`^/app(?:/.*)?$`): existing files under WebFolder/app are returned as-is
-(hashed assets immutable), every other path gets index.html (no-cache).
-`app.af.softfact.com` is a permanent redirect to `af.softfact.com/app`.
+Caddy serves the folder as `app.af.softfact.com` (CADDY/Caddyfile there:
+hashed assets immutable, everything else index.html no-cache; `/api`, `/mcp`,
+`/getimage`, `/images` proxied to 4D). Locally: http://localhost:8091 via
+`CADDY/Caddyfile.dev`. 4D never serves the SPA.
 
-The prefix is derived from `import.meta.env.BASE_URL` in `src/main.tsx`
-(router `basename`, `loginRoute`); never hard-code `/app` in components.
+`src/lib/base.ts` derives the router basename and `loginRoute` from vite's
+`base` ("/" today); never hard-code a prefix in components.
 
 ## Structure
 ```

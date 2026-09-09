@@ -22,14 +22,11 @@ const proxy = {
 }
 
 export default defineConfig({
-  // The backoffice lives under /app on the 4D host (af.softfact.com/app), the
-  // way ArtDimensions serves its SPA from the 4D web root. `base` applies to
-  // dev, preview and build alike, so a path bug shows up locally too.
-  base: '/app/',
   build: {
     // The build lands in the 4D repo's WebFolder and is committed there:
-    // a git pull on the server deploys frontend and backend together.
-    // 4D serves it through HTTP_AF_App (index.html for routes, files for assets).
+    // a git pull on the server deploys frontend and backend together, and
+    // Caddy serves the folder as app.af.softfact.com (CADDY/Caddyfile in
+    // that repo; locally http://localhost:8091 via Caddyfile.dev).
     outDir: '../AustrianFilms/WebFolder/app',
     emptyOutDir: true,
   },

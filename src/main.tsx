@@ -12,8 +12,9 @@ import App from './App.tsx'
 // AustrianFilms-specific API4D-library configuration. Same shared lib as
 // MDS-Praxis (and, going forward, ECOline) — fixes to lib/api4d benefit all.
 // storagePrefix keeps the historical key name (austrianfilms_token).
-// Served under a path prefix (vite `base`, "/app/" here): the router and the
-// hard redirect to the login page both have to know it — see lib/base.ts.
+// Router basename and login route follow vite's `base` (lib/base.ts) — "/"
+// today, so both are plain; the wiring stays in case the app ever moves
+// under a path prefix.
 const config: API4DConfig = {
   apiBase: '/api/v1',
   storagePrefix: 'austrianfilms',

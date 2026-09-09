@@ -9,11 +9,11 @@ import { test, expect } from '@playwright/test'
  */
 
 const AREAS = [
-  { path: '/app/films', heading: 'Films' },
-  { path: '/app/festivals', heading: 'Festivals' },
-  { path: '/app/itineraries', heading: 'Itineraries' },
+  { path: '/films', heading: 'Films' },
+  { path: '/festivals', heading: 'Festivals' },
+  { path: '/itineraries', heading: 'Itineraries' },
   // the persons screen became Contacts on the Party model (2026-09-03)
-  { path: '/app/parties', heading: 'Contacts' },
+  { path: '/parties', heading: 'Contacts' },
 ]
 
 for (const { path, heading } of AREAS) {
@@ -34,8 +34,8 @@ for (const { path, heading } of AREAS) {
 }
 
 test('an unknown route falls back to the dashboard', async ({ page }) => {
-  await page.goto('/app/does-not-exist')
+  await page.goto('/does-not-exist')
 
-  await expect(page).toHaveURL(/localhost:5181\/app\/?$/)
+  await expect(page).toHaveURL(/localhost:5181\/?$/)
   await expect(page.getByRole('heading', { name: 'Welcome to Austrian Films' })).toBeVisible()
 })

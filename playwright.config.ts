@@ -40,7 +40,6 @@ export default defineConfig({
   reporter: 'list',
 
   use: {
-    // specs navigate with the /app prefix spelled out (goto('/app/films'))
     baseURL: 'http://localhost:5181',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
@@ -67,8 +66,7 @@ export default defineConfig({
   // Start the Vite dev server unless one is already listening on :5181.
   webServer: {
     command: 'npm run dev',
-    // the app answers under its base path; the root is a 404 on the dev server
-    url: 'http://localhost:5181/app/',
+    url: 'http://localhost:5181',
     reuseExistingServer: true,
     timeout: 60_000,
   },
