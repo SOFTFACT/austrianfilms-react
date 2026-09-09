@@ -82,6 +82,16 @@ export const EMPTY_FILM_BOX_FILTERS: FilmBoxFilters = {
   actualOnly: '',
 }
 
+/**
+ * What the films list opens with: current films only (decision 2026-09-09).
+ * The archive is one unticked checkbox away; "Clear" returns to this default,
+ * not to the empty set, so the standard view is always one click back.
+ */
+export const DEFAULT_FILM_BOX_FILTERS: FilmBoxFilters = {
+  ...EMPTY_FILM_BOX_FILTERS,
+  actualOnly: 'true',
+}
+
 /** Genre category vocabulary (FM_filme.genre numeric codes). */
 export const FILM_GENRES: { value: '1' | '2' | '3'; label: string }[] = [
   { value: '1', label: 'Fiction' },

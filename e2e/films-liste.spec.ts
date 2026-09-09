@@ -45,7 +45,17 @@ test('scrolling to the end requests the next page', async ({ page }) => {
 test('searching narrows the total', async ({ page }) => {
   const before = await total(page)
 
-  await search(page).fill('Cosmos')
+  // The list opens with "current only" (DEFAULT_FILM_BOX_FILTERS), so a fixed
+  // term such as "Cosmos" may not be among the current films at all. Ask the
+  // API for a title that IS in the default view and search for that one.
+  const token = await page.evaluate(() => localStorage.getItem('austrianfilms_token'))
+  const res = await page.request.get('/api/v1/fmfilms?actualOnly=true&limit=1', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  const title = ((await res.json()) as { data: { titel: string }[] }).data[0]?.titel?.trim() ?? ''
+  expect(title.length).toBeGreaterThan(1)
+
+  await search(page).fill(title)
 
   await expect.poll(async () => total(page), { timeout: 30_000 }).toBeLessThan(before)
   expect(await total(page)).toBeGreaterThan(0)
