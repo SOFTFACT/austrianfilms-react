@@ -63,12 +63,41 @@ export interface PartyRelation {
 }
 
 export interface PartyHistoryLine {
+  P_UUID: string
   at: string
   user: string
   source: string
   action: string
   /** "2026-09-03T10:12 · reinhard · update · note: … → …" */
   summary: string
+  /** the field diffs, the note and "[copy on file]" — what the 4D History tab shows in its Detail column */
+  detail: string
+  /** a merge stored a full copy of the dropped row on this line */
+  hasSnapshot: boolean
+}
+
+/** One row of the "Films & awards" tab: a credit (person_film_rel) or a company role on a film (film_contact_rel). */
+export interface PartyFilm {
+  /** FM_filme UUID; empty when the legacy shadow row carries none */
+  filmKey: string
+  title: string
+  titleEn: string
+  year: number
+  role: string
+  /** country of a distribution/sales role; empty for credits */
+  country: string
+  source: 'credit' | 'company'
+  rowId: string
+}
+
+/** A prize the party holds itself — never one of its films' awards. */
+export interface PartyAward {
+  name: string
+  year: number
+  category: string
+  festival: string
+  result: 'won' | 'nominee' | 'special_mention' | 'honorable_mention' | string
+  subjectType: string
 }
 
 export interface Party extends PartyRow {
@@ -101,6 +130,8 @@ export interface Party extends PartyRow {
   createdBy: string
   mailingLists: { id: string; name: string }[]
   history: PartyHistoryLine[]
+  films: PartyFilm[]
+  awards: PartyAward[]
 }
 
 /**

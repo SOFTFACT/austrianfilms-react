@@ -5,7 +5,8 @@ import { useParty, useUpdateParty, useMarkReviewed } from '../hooks/useParties'
 import { reviewClass } from './partyBits'
 import { KindIcon } from './KindIcon'
 import { cn } from '../lib/utils'
-import type { Party, PartyChannel } from '../types/party'
+import { formatDate } from '../lib/format'
+import type { Party, PartyChannel, PartyRelation } from '../types/party'
 
 function Field({ label, value }: { label: string; value: ReactNode }) {
   if (value === undefined || value === null || value === '') return null
@@ -17,20 +18,50 @@ function Field({ label, value }: { label: string; value: ReactNode }) {
   )
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, intro, children }: { title: string; intro?: string; children: ReactNode }) {
   return (
     <section className="mt-6">
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{title}</h2>
+      {intro && <p className="mb-2 text-xs text-muted-foreground">{intro}</p>}
       {children}
     </section>
   )
 }
+
+/** The listbox look of the 4D tabs: a bordered table, header in small caps, one line per row. */
+function Table({ headers, children }: { headers: string[]; children: ReactNode }) {
+  return (
+    <div className="overflow-x-auto rounded-lg border border-border">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+            {headers.map((h, i) => <th key={i} className="px-3 py-1.5 font-medium">{h}</th>)}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">{children}</tbody>
+      </table>
+    </div>
+  )
+}
+
+const td = 'px-3 py-1.5 align-top'
 
 function channelHref(c: PartyChannel): string | undefined {
   if (c.type === 'EMAIL') return `mailto:${c.value}`
   if (c.type === 'PHONE' || c.type === 'FAX') return `tel:${c.value.replace(/\s+/g, '')}`
   if (c.type === 'WEBSITE' || c.type === 'SOCIAL') return c.value.startsWith('http') ? c.value : `https://${c.value}`
   return undefined
+}
+
+/** Party.gender is the numeric code of the legacy personen radio group: Unknown/Male/Female/Diverse = 0/1/2/3. */
+const GENDER_LABEL: Record<string, string> = { '0': '', '1': 'male', '2': 'female', '3': 'diverse' }
+
+/** Status column of the Relationships tab: "expired" / "not yet" / nothing while the row is current. */
+function validityLabel(r: PartyRelation): string {
+  const today = new Date().toISOString().slice(0, 10)
+  if (r.validTo && r.validTo.slice(0, 10) < today) return 'expired'
+  if (r.validFrom && r.validFrom.slice(0, 10) > today) return 'not yet'
+  return ''
 }
 
 function NoteEditor({ initial, saving, onSave }: { initial: string; saving: boolean; onSave: (note: string) => void }) {
@@ -68,6 +99,21 @@ function reviewLine(p: Party): string {
   if (p.reviewState === 'checked') return `✓ checked ${p.reviewedAt.slice(0, 10)}${p.reviewedBy ? ` by ${p.reviewedBy}` : ''}`
   if (p.reviewState === 'changed') return `⚠ changed since check of ${p.reviewedAt.slice(0, 10)}`
   return 'never checked'
+}
+
+/** The intro sentences of the 4D "Films & awards" and "History" tabs, word for word. */
+function filmsIntro(n: number): string {
+  if (n === 0) return 'No films linked to this entry.'
+  return `${n === 1 ? '1 film' : `${n} films`}, newest first. Credits and company roles are maintained on the film, not here.`
+}
+function awardsIntro(n: number): string {
+  if (n === 0) return 'No awards on this entry. An award a FILM won is shown on the film.'
+  return `${n === 1 ? '1 award' : `${n} awards`} held by this entry, newest first.`
+}
+function historyIntro(n: number): string {
+  if (n === 0) return 'Nothing recorded for this entry yet.'
+  if (n === 1) return '1 recorded change.'
+  return `${n} recorded changes, newest first.${n >= 30 ? ' Older ones are in the protocol, not in this list.' : ''}`
 }
 
 export function PartyDetailPage() {
@@ -112,14 +158,17 @@ export function PartyDetailPage() {
             <p className="text-xs text-muted-foreground">{originLine(p)}</p>
             <p className={cn('text-xs text-muted-foreground', reviewClass(p.reviewState))}>{reviewLine(p)}</p>
 
+            {/* the same fields as the 4D mask, with its kind-dependent layout */}
             <dl className="mt-4">
               {p.kind === 'person' && <Field label="Given name" value={p.vorname} />}
               {p.kind === 'person' && <Field label="Last name" value={p.nachname} />}
+              {p.kind !== 'person' && <Field label="Name" value={p.displayName} />}
               {p.kind !== 'person' && <Field label="Short name" value={p.shortName} />}
-              <Field label="Title" value={p.academicTitle} />
+              {p.kind === 'person' && <Field label="Title" value={p.academicTitle} />}
+              {p.kind === 'person' && <Field label="Gender" value={GENDER_LABEL[p.gender] ?? p.gender} />}
               <Field label="Category" value={p.categoryName} />
-              <Field label="Born" value={[p.bornDate?.slice(0, 10), p.bornInYear, p.bornIn].filter(Boolean).join(' · ')} />
-              <Field label="Died" value={[p.diedDate?.slice(0, 10), p.diedInYear, p.diedIn].filter(Boolean).join(' · ')} />
+              {p.kind === 'person' && <Field label="Born" value={[formatDate(p.bornDate), p.bornInYear, p.bornIn].filter(Boolean).join(' · ')} />}
+              {p.kind === 'person' && <Field label="Died" value={[formatDate(p.diedDate), p.diedInYear, p.diedIn].filter(Boolean).join(' · ')} />}
               <Field label="Hidden on the public website" value={p.hidden ? 'yes' : ''} />
             </dl>
 
@@ -128,53 +177,75 @@ export function PartyDetailPage() {
               <NoteEditor key={`${p.id}:${p.note}`} initial={p.note ?? ''} saving={update.isPending} onSave={(note) => update.mutate({ note })} />
             </Section>
 
-            <Section title="Contact details">
+            <Section title="Contact details" intro="E-mail, phone, fax, website and social are rows — a party may hold several of each. The preferred one per type is what every display reads.">
               {p.channels.length === 0 ? (
                 <p className="text-sm text-muted-foreground">none</p>
               ) : (
-                <ul className="divide-y divide-border rounded-lg border border-border">
+                <Table headers={['Type', 'Value', 'Label', 'Preferred']}>
                   {p.channels.map((c) => {
                     const href = channelHref(c)
                     return (
-                      <li key={c.id} className="flex items-center gap-3 px-3 py-1.5 text-sm">
-                        <span className="w-16 shrink-0 text-xs uppercase text-muted-foreground">{c.type}</span>
-                        {href ? <a href={href} target={c.type === 'WEBSITE' || c.type === 'SOCIAL' ? '_blank' : undefined} rel="noreferrer" className="truncate text-blue-600 hover:underline dark:text-blue-400">{c.value}</a> : <span className="truncate">{c.value}</span>}
-                        {c.label && <span className="text-xs text-muted-foreground">{c.label}</span>}
-                        {c.preferred && <span className="ml-auto text-xs text-green-700 dark:text-green-400">preferred</span>}
-                      </li>
+                      <tr key={c.id}>
+                        <td className={cn(td, 'text-xs uppercase text-muted-foreground')}>{c.type}</td>
+                        <td className={td}>
+                          {href ? <a href={href} target={c.type === 'WEBSITE' || c.type === 'SOCIAL' ? '_blank' : undefined} rel="noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">{c.value}</a> : c.value}
+                        </td>
+                        <td className={cn(td, 'text-muted-foreground')}>{c.label}</td>
+                        <td className={cn(td, 'text-green-700 dark:text-green-400')}>{c.preferred ? '✓' : ''}</td>
+                      </tr>
                     )
                   })}
-                </ul>
+                </Table>
               )}
             </Section>
 
-            {p.addresses.length > 0 && (
-              <Section title="Addresses">
-                <ul className="divide-y divide-border rounded-lg border border-border">
+            <Section title="Addresses" intro="The country code lives on the address and nowhere else. COUNTRY_ONLY is for a party whose country is known but whose address is not.">
+              {p.addresses.length === 0 ? (
+                <p className="text-sm text-muted-foreground">none</p>
+              ) : (
+                <Table headers={['Type', 'Street', 'ZIP', 'City', 'Country']}>
                   {p.addresses.map((a) => (
-                    <li key={a.id} className="px-3 py-1.5 text-sm">
-                      <span className="mr-2 text-xs uppercase text-muted-foreground">{a.type}</span>
-                      {[a.street, a.addressLine2, [a.zip, a.city].filter(Boolean).join(' '), a.countryCode].filter(Boolean).join(', ')}
-                    </li>
+                    <tr key={a.id}>
+                      <td className={cn(td, 'text-xs uppercase text-muted-foreground')}>{a.type}</td>
+                      <td className={td}>{[a.street, a.addressLine2].filter(Boolean).join(', ')}</td>
+                      <td className={td}>{a.zip}</td>
+                      <td className={td}>{a.city}</td>
+                      <td className={td}>{a.countryCode}</td>
+                    </tr>
                   ))}
-                </ul>
-              </Section>
-            )}
+                </Table>
+              )}
+            </Section>
 
-            {p.relations.length > 0 && (
-              <Section title="Relationships">
-                <ul className="divide-y divide-border rounded-lg border border-border">
-                  {p.relations.map((r) => (
-                    <li key={r.relationshipId} className="flex items-center gap-3 px-3 py-1.5 text-sm">
-                      <KindIcon kind={r.other.kind} className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      <Link to={`/parties/${r.other.id}`} className="truncate text-blue-600 hover:underline dark:text-blue-400">{r.other.displayName}</Link>
-                      <span className="text-xs text-muted-foreground">{r.roleName}{r.roleNote ? ` · ${r.roleNote}` : ''}</span>
-                      {r.verifiedAt && <span className="ml-auto text-xs text-green-700 dark:text-green-400">verified</span>}
-                    </li>
-                  ))}
-                </ul>
-              </Section>
-            )}
+            <Section title="Relationships" intro="Both directions are listed — the arrow says how the row is stored, not who matters.">
+              {p.relations.length === 0 ? (
+                <p className="text-sm text-muted-foreground">none</p>
+              ) : (
+                <Table headers={['', 'Role', 'Other party', 'From', 'To', 'Status', 'Checked']}>
+                  {p.relations.map((r) => {
+                    const linkOnly = r.roleCode === 'RELATED_TO'
+                    return (
+                      <tr key={r.relationshipId}>
+                        <td className={cn(td, 'text-muted-foreground')} title={r.outgoing ? 'stored on this entry' : 'stored on the other entry'}>{r.outgoing ? '→' : '←'}</td>
+                        <td className={cn(td, linkOnly && 'italic text-muted-foreground')}>
+                          {linkOnly ? '— link only' : r.roleName}{r.roleNote ? <span className="text-xs text-muted-foreground"> · {r.roleNote}</span> : null}
+                        </td>
+                        <td className={td}>
+                          <Link to={`/parties/${r.other.id}`} className="inline-flex items-center gap-1.5 text-blue-600 hover:underline dark:text-blue-400">
+                            <KindIcon kind={r.other.kind} className="h-4 w-4 shrink-0 text-muted-foreground" />
+                            {r.other.displayName}
+                          </Link>
+                        </td>
+                        <td className={cn(td, 'whitespace-nowrap')}>{formatDate(r.validFrom)}</td>
+                        <td className={cn(td, 'whitespace-nowrap')}>{formatDate(r.validTo)}</td>
+                        <td className={cn(td, 'text-xs text-amber-700 dark:text-amber-400')}>{validityLabel(r)}</td>
+                        <td className={cn(td, 'text-green-700 dark:text-green-400')} title={r.verifiedAt ? `checked ${r.verifiedAt.slice(0, 10)}` : undefined}>{r.verifiedAt ? '✓' : ''}</td>
+                      </tr>
+                    )
+                  })}
+                </Table>
+              )}
+            </Section>
 
             {p.mailingLists.length > 0 && (
               <Section title="Distribution lists">
@@ -194,15 +265,56 @@ export function PartyDetailPage() {
               </Section>
             )}
 
-            {p.history.length > 0 && (
-              <Section title="History">
-                <ul className="space-y-1 text-xs text-muted-foreground">
-                  {p.history.map((h, i) => (
-                    <li key={`${h.at}-${i}`} className="truncate" title={h.summary}>{h.summary}</li>
+            <Section title="Films" intro={filmsIntro(p.films.length)}>
+              {p.films.length > 0 && (
+                <Table headers={['Year', 'Title', 'English title', 'Role', 'Country', 'Source']}>
+                  {p.films.map((f) => (
+                    <tr key={f.rowId}>
+                      <td className={cn(td, 'whitespace-nowrap')}>{f.year || ''}</td>
+                      <td className={td}>
+                        {f.filmKey ? <Link to={`/films/${f.filmKey}`} className="text-blue-600 hover:underline dark:text-blue-400">{f.title}</Link> : f.title}
+                      </td>
+                      <td className={cn(td, 'text-muted-foreground')}>{f.titleEn}</td>
+                      <td className={td}>{f.role}</td>
+                      <td className={td}>{f.country}</td>
+                      <td className={cn(td, 'text-xs text-muted-foreground')}>{f.source}</td>
+                    </tr>
                   ))}
-                </ul>
-              </Section>
-            )}
+                </Table>
+              )}
+            </Section>
+
+            <Section title="Awards" intro={awardsIntro(p.awards.length)}>
+              {p.awards.length > 0 && (
+                <Table headers={['Year', 'Award', 'Category', 'Festival', 'Result']}>
+                  {p.awards.map((a, i) => (
+                    <tr key={`${a.year}-${a.name}-${i}`}>
+                      <td className={cn(td, 'whitespace-nowrap')}>{a.year || ''}</td>
+                      <td className={td}>{a.name}</td>
+                      <td className={td}>{a.category}</td>
+                      <td className={td}>{a.festival}</td>
+                      <td className={td}>{a.result.replace('_', ' ')}</td>
+                    </tr>
+                  ))}
+                </Table>
+              )}
+            </Section>
+
+            <Section title="History" intro={historyIntro(p.history.length)}>
+              {p.history.length > 0 && (
+                <Table headers={['When', 'User', 'Source', 'What', 'Detail']}>
+                  {p.history.map((h, i) => (
+                    <tr key={h.P_UUID || `${h.at}-${i}`} className="text-xs">
+                      <td className={cn(td, 'whitespace-nowrap')}>{h.at.slice(0, 16).replace('T', ' ')}</td>
+                      <td className={td}>{h.user}</td>
+                      <td className={cn(td, 'text-muted-foreground')}>{h.source}</td>
+                      <td className={td}>{h.action}</td>
+                      <td className={cn(td, 'text-muted-foreground')}>{h.detail}</td>
+                    </tr>
+                  ))}
+                </Table>
+              )}
+            </Section>
           </div>
         </div>
       )}
