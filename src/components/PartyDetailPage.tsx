@@ -57,6 +57,11 @@ function channelHref(c: PartyChannel): string | undefined {
 const GENDER_LABEL: Record<string, string> = { '0': '', '1': 'male', '2': 'female', '3': 'diverse' }
 
 /** Status column of the Relationships tab: "expired" / "not yet" / nothing while the row is current. */
+/** MANAGING_DIRECTOR -> "managing director" — the catalogue name, without a second request */
+function titleName(code: string): string {
+  return code.toLowerCase().replace(/_/g, ' ')
+}
+
 function validityLabel(r: PartyRelation): string {
   const today = new Date().toISOString().slice(0, 10)
   if (r.validTo && r.validTo.slice(0, 10) < today) return 'expired'
@@ -223,12 +228,20 @@ export function PartyDetailPage() {
               ) : (
                 <Table headers={['', 'Role', 'Other party', 'From', 'To', 'Status', 'Checked']}>
                   {p.relations.map((r) => {
-                    const linkOnly = r.roleCode === 'RELATED_TO'
+                    const typeCode = r.type || r.roleCode
+                    const linkOnly = typeCode === 'RELATED_TO'
+                    const label = r.label || r.roleName
+                    const note = r.note || r.roleNote
+                    // both sides carry a title only on FAMILY rows (father / daughter):
+                    // label already shows the other side's title, so add what I am
+                    const bothSides = r.ownTitle && r.partnerTitle && r.ownTitle !== r.partnerTitle
                     return (
                       <tr key={r.relationshipId}>
                         <td className={cn(td, 'text-muted-foreground')} title={r.outgoing ? 'stored on this entry' : 'stored on the other entry'}>{r.outgoing ? '→' : '←'}</td>
                         <td className={cn(td, linkOnly && 'italic text-muted-foreground')}>
-                          {linkOnly ? '— link only' : r.roleName}{r.roleNote ? <span className="text-xs text-muted-foreground"> · {r.roleNote}</span> : null}
+                          {linkOnly ? '— link only' : label}
+                          {bothSides ? <span className="text-xs text-muted-foreground"> · me: {titleName(r.ownTitle)}</span> : null}
+                          {note ? <span className="text-xs text-muted-foreground"> · {note}</span> : null}
                         </td>
                         <td className={td}>
                           <Link to={`/parties/${r.other.id}`} className="inline-flex items-center gap-1.5 text-blue-600 hover:underline dark:text-blue-400">

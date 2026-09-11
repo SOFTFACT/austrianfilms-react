@@ -51,10 +51,22 @@ export interface PartyAddress {
 
 export interface PartyRelation {
   relationshipId: string
+  /** relationship type code: RELATED_TO, WORK, MEMBER_OF, FAMILY (since 2026-09-11) */
+  type: string
+  /** display text for this party's card — counterpart title, own title, else the type name */
+  label: string
+  /** title codes on the stored sides (e.g. MANAGING_DIRECTOR, MEMBER, FATHER); "" when none */
+  fromTitle: string
+  toTitle: string
+  /** the same titles seen from this party: what I am / what the other party is */
+  ownTitle: string
+  partnerTitle: string
+  note: string
+  /** aliases of type / label / note, kept by the API for older builds */
   roleCode: string
   roleName: string
-  outgoing: boolean
   roleNote: string
+  outgoing: boolean
   verifiedAt: string
   validFrom: string
   validTo: string
