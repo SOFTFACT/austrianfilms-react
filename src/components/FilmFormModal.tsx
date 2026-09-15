@@ -89,14 +89,12 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
                 ))}
               </select>
             </div>
-            <FieldInput label="Director" value={form.regie} onChange={f('regie')} placeholder="Director name" />
-            <FieldInput
-              label="Production company"
-              value={form.produktion}
-              onChange={f('produktion')}
-              placeholder="Production company"
-            />
           </div>
+          {!isEdit && (
+            <p className="text-xs text-muted-foreground">
+              Director, cast, crew and companies are added as links on the film page after creating it.
+            </p>
+          )}
 
           {/* Additional details (collapsible) */}
           <button
@@ -115,7 +113,6 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
               <FieldInput label="Duration (min)" value={form.minuten} onChange={f('minuten')} type="number" placeholder="90" />
               <FieldInput label="Format" value={form.format} onChange={f('format')} placeholder="e.g. DCP, 35mm" />
               <FieldInput label="Original language" value={form.originalsprache} onChange={f('originalsprache')} />
-              <FieldInput label="World sales" value={form.weltvertrieb} onChange={f('weltvertrieb')} />
               <FieldInput
                 label="Film website"
                 value={form.filmwebsite}

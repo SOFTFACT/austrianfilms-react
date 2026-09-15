@@ -6,6 +6,7 @@ import { useFilm } from '../hooks/useFilms'
 import { useFilmForm, type FilmFormState } from '../hooks/useFilmForm'
 import { deleteFilm } from '../api/films'
 import { FILM_GENRES, type Film } from '../types/film'
+import { FilmCompaniesSection, FilmCreditsSection, FilmLegacyPeople } from './FilmPeople'
 import type { ApiError } from '@softfact/api4d-react'
 
 function Field({ label, value }: { label: string; value: ReactNode }) {
@@ -102,10 +103,6 @@ function FilmEditView({ film, onDone }: { film: Film; onDone: () => void }) {
           <EditField label="English title" value={form.englischerTitel} onChange={f('englischerTitel')} />
 
           <div className="mt-4 rounded-lg border border-border bg-card p-4">
-            <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Crew &amp; Production</div>
-            <EditField label="Director" value={form.regie} onChange={f('regie')} />
-            <EditField label="Production" value={form.produktion} onChange={f('produktion')} />
-            <EditField label="World sales" value={form.weltvertrieb} onChange={f('weltvertrieb')} />
             <div className="py-2">
               <label className="mb-1 block text-xs uppercase tracking-wide text-muted-foreground">Genre</label>
               <select
@@ -142,11 +139,14 @@ function FilmEditView({ film, onDone }: { film: Film; onDone: () => void }) {
             </div>
           </div>
 
-          {/* The director caveat, surfaced where it's edited. */}
-          <p className="mt-2 text-xs text-muted-foreground">
-            Note: the director is shown from linked person records, so an edit here saves but won't appear in the
-            list/detail view.
-          </p>
+          {/* Credits and companies are separate rows, written on each click — not
+              fields of this form. Until Cancel can undo them, say so plainly. */}
+          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+            Credits and companies are saved immediately – Cancel does not undo them.
+          </div>
+          <FilmCreditsSection filmId={film.id} editable />
+          <FilmCompaniesSection film={film} editable />
+          <FilmLegacyPeople film={film} />
 
           {error && <div className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
         </div>
@@ -237,16 +237,18 @@ export function FilmDetailPage() {
             <h1 className="text-xl font-semibold text-foreground">{film.titel || '—'}</h1>
             {film.englischerTitel && <p className="text-sm text-muted-foreground">{film.englischerTitel}</p>}
 
-            <div className="mt-4 rounded-lg border border-border bg-card p-4">
-              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Crew &amp; Production</div>
-              <dl>
-                <Field label="Director" value={film.regie} />
-                <Field label="Production" value={film.produktion} />
-                <Field label="World sales" value={film.weltvertrieb} />
-                <Field label="Funding" value={film.finanziert} />
-                <Field label="Genre" value={film.filmgenre} />
-              </dl>
-            </div>
+            {(film.finanziert || film.filmgenre) && (
+              <div className="mt-4 rounded-lg border border-border bg-card p-4">
+                <dl>
+                  <Field label="Funding" value={film.finanziert} />
+                  <Field label="Genre" value={film.filmgenre} />
+                </dl>
+              </div>
+            )}
+
+            <FilmCreditsSection filmId={film.id} editable={false} />
+            <FilmCompaniesSection film={film} editable={false} />
+            <FilmLegacyPeople film={film} />
 
             {(film.betreuung || film.betreuungsjahr) && (
               <div className="mt-4 rounded-lg border border-border bg-card p-4">

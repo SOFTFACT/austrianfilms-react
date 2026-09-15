@@ -1,5 +1,5 @@
 import { apiFetch } from '@softfact/api4d-react'
-import type { Film, FilmFilters, Paginated } from '../types/film'
+import type { CompanyRole, CreditRole, Film, FilmCredit, FilmFilters, Paginated } from '../types/film'
 
 function toQuery(f: FilmFilters): string {
   const p = new URLSearchParams()
@@ -34,25 +34,23 @@ export function getFilm(id: string): Promise<Film> {
  * Writable film fields accepted by FMFilmsController.applyFieldsFromBody.
  * `titel` + `produktionsjahr` are required on create (validateFilmData).
  * `genre` is the numeric category (1 Fiction / 2 Documentary / 3 Hybrid).
- * NOTE: `regie` maps to FM_filme.X_regie. List/detail show the director from
- * person_film_rel (computed), so an edited `regie` saves but won't surface in
- * those views — same behaviour as the legacy /hq film modal. Proper director
- * management is a PATCH {director} concern (creates person_film_rel).
+ *
+ * People and companies are NOT written here (2026-09-15). The director comes
+ * from the credits (the API has ignored `regie` since 2026-09-01), and the
+ * legacy free texts `produktion` / `weltvertrieb` are shown read-only: credits
+ * go through /fmfilms/:id:credits, companies through /film-contact-rels.
  */
 export interface FilmWriteBody {
   titel: string
   produktionsjahr: number
   englischerTitel?: string
   genre?: number
-  regie?: string
-  produktion?: string
   kategorie?: string
   filmgenre?: string
   betreuung?: string
   minuten?: string
   format?: string
   originalsprache?: string
-  weltvertrieb?: string
   filmwebsite?: string
   bemerkung?: string
 }
@@ -74,4 +72,56 @@ export function updateFilm(id: string, body: FilmWriteBody): Promise<FilmWriteRe
 
 export function deleteFilm(id: string): Promise<{ success: boolean; message?: string }> {
   return apiFetch<{ success: boolean; message?: string }>(`/fmfilms/${id}`, { method: 'DELETE' })
+}
+
+// ── People and companies (Party model) ──────────────────────────────────────
+
+/** Credits of a film; every write below answers with the updated list. */
+export function getFilmCredits(filmId: string): Promise<{ data: FilmCredit[] }> {
+  return apiFetch<{ data: FilmCredit[] }>(`/fmfilms/${filmId}:credits`)
+}
+
+/** Credits a person or collective. The same credit twice is a no-op (`alreadyThere`). */
+export function addFilmCredit(
+  filmId: string,
+  body: { partyId: string; roleId: string },
+): Promise<{ data: FilmCredit[]; alreadyThere?: boolean }> {
+  return apiFetch(`/fmfilms/${filmId}:credits`, { method: 'POST', body: JSON.stringify(body) })
+}
+
+export function removeFilmCredit(filmId: string, creditId: string): Promise<{ data: FilmCredit[] }> {
+  return apiFetch(`/fmfilms/${filmId}:credits`, { method: 'DELETE', body: JSON.stringify({ creditId }) })
+}
+
+export function getCreditRoles(): Promise<{ data: CreditRole[] }> {
+  return apiFetch<{ data: CreditRole[] }>('/fmfilms:creditroles')
+}
+
+export function getCompanyRoles(): Promise<{ data: CompanyRole[] }> {
+  return apiFetch<{ data: CompanyRole[] }>('/fmfilms:companyroles')
+}
+
+/**
+ * Links a company to a film in a role. The territory (`countryCode`) is sent
+ * only when given — the API demands it for distributors alone, as the 4D mask
+ * does. An identical link is returned instead of duplicated.
+ */
+export function addFilmCompany(
+  filmId: string,
+  body: { partyId: string; roleId: string; countryCode?: string },
+): Promise<unknown> {
+  return apiFetch('/film-contact-rels', {
+    method: 'POST',
+    body: JSON.stringify({
+      film_id: filmId,
+      kontakt_id: body.partyId,
+      role: body.roleId,
+      ...(body.countryCode ? { countryCode: body.countryCode } : {}),
+    }),
+  })
+}
+
+/** DELETE answers 204 — apiFetch resolves that to undefined. */
+export function removeFilmCompany(relId: string): Promise<void> {
+  return apiFetch<void>(`/film-contact-rels/${relId}`, { method: 'DELETE' })
 }
