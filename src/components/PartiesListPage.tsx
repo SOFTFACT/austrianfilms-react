@@ -7,7 +7,7 @@ import { useDebounce } from '../hooks/useDebounce'
 import { fetchAllPages } from '../lib/fetchAllPages'
 import { type ExportColumn } from '../lib/exportTable'
 import { getParties } from '../api/parties'
-import { cn } from '../lib/utils'
+import { cn, canAutoFocusSearch } from '../lib/utils'
 import { ExportMenu } from './ExportMenu'
 import { PARTY_WORKSETS, type PartyFilters, type PartyKind, type PartyRow } from '../types/party'
 import { KIND_LABEL, reviewClass } from './partyBits'
@@ -109,6 +109,7 @@ export function PartiesListPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search name…"
+                autoFocus={canAutoFocusSearch()}
                 className="w-40 rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-56"
               />
             </div>

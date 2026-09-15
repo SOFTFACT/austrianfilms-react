@@ -9,7 +9,7 @@ import { formatDate } from '../lib/format'
 import { fetchAllPages } from '../lib/fetchAllPages'
 import { type ExportColumn } from '../lib/exportTable'
 import { getFestivals } from '../api/festivals'
-import { cn } from '../lib/utils'
+import { cn, canAutoFocusSearch } from '../lib/utils'
 import { Flag } from './Flag'
 import { ExportMenu } from './ExportMenu'
 import { RowInlineDetail, ExpandAllButton, type DetailField } from './RowInlineDetail'
@@ -86,6 +86,7 @@ export function FestivalsListPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search festival, city, country…"
+                autoFocus={canAutoFocusSearch()}
                 className="w-56 rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-72"
               />
             </div>

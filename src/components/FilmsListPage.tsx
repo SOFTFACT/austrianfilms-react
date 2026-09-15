@@ -9,7 +9,7 @@ import { useExpandableRows } from '../hooks/useExpandableRows'
 import { fetchAllPages } from '../lib/fetchAllPages'
 import { type ExportColumn } from '../lib/exportTable'
 import { getFilms } from '../api/films'
-import { cn } from '../lib/utils'
+import { cn, canAutoFocusSearch } from '../lib/utils'
 import { ExportMenu } from './ExportMenu'
 import { FilmFilterPanel } from './FilmFilterPanel'
 import { FilmFormModal } from './FilmFormModal'
@@ -142,6 +142,7 @@ export function FilmsListPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search title…"
+                autoFocus={canAutoFocusSearch()}
                 className="w-40 rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-56"
               />
             </div>

@@ -9,7 +9,7 @@ import { formatDate } from '../lib/format'
 import { fetchAllPages } from '../lib/fetchAllPages'
 import { type ExportColumn } from '../lib/exportTable'
 import { getItineraries } from '../api/itineraries'
-import { cn } from '../lib/utils'
+import { cn, canAutoFocusSearch } from '../lib/utils'
 import { Flag } from './Flag'
 import { NewItineraryModal } from './NewItineraryModal'
 import { ItineraryFilterPanel } from './ItineraryFilterPanel'
@@ -115,6 +115,7 @@ export function ItinerariesListPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search film, festival…"
+                autoFocus={canAutoFocusSearch()}
                 className="w-44 rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm outline-none focus:border-ring md:w-60"
               />
             </div>
