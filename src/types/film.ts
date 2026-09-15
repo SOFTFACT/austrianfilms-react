@@ -83,13 +83,14 @@ export const EMPTY_FILM_BOX_FILTERS: FilmBoxFilters = {
 }
 
 /**
- * What the films list opens with: current films only (decision 2026-09-09).
- * The archive is one unticked checkbox away; "Clear" returns to this default,
- * not to the empty set, so the standard view is always one click back.
+ * What the films list opens with: every film, no filter. From 2026-09-09 to
+ * 2026-09-15 it opened with "current only", and a title search then missed
+ * every film without an AF status ("Spacehasen TOS": 1 hit without the
+ * filter, 0 with it) — the editors read that as "search does not find it".
+ * "Current only" stays one ticked checkbox away.
  */
 export const DEFAULT_FILM_BOX_FILTERS: FilmBoxFilters = {
   ...EMPTY_FILM_BOX_FILTERS,
-  actualOnly: 'true',
 }
 
 /** Genre category vocabulary (FM_filme.genre numeric codes). */

@@ -14,8 +14,8 @@ export function useFilmFilters() {
 
   const clear = useCallback(() => setFilters(DEFAULT_FILM_BOX_FILTERS), [])
 
-  // Counts what differs from the DEFAULT, not from empty — the standard
-  // "current only" must not read as an active filter on a fresh list.
+  // Counts what differs from the DEFAULT, not from empty, so a default that
+  // carries a filter never reads as an active filter on a fresh list.
   const activeCount = useMemo(
     () =>
       (Object.keys(filters) as (keyof FilmBoxFilters)[]).filter(
