@@ -48,7 +48,8 @@ export interface FilmWriteBody {
   kategorie?: string
   filmgenre?: string
   betreuung?: string
-  minuten?: string
+  /** Whole minutes; null clears it. */
+  runningTime?: number | null
   format?: string
   originalsprache?: string
   filmwebsite?: string

@@ -110,7 +110,7 @@ export function FilmFormModal({ film, onClose }: { film?: Film; onClose: () => v
               <FieldInput label="Category" value={form.kategorie} onChange={f('kategorie')} placeholder="e.g. Feature, Short" />
               <FieldInput label="Film genre" value={form.filmgenre} onChange={f('filmgenre')} placeholder="e.g. Drama" />
               <FieldInput label="AFC contact" value={form.betreuung} onChange={f('betreuung')} />
-              <FieldInput label="Duration (min)" value={form.minuten} onChange={f('minuten')} type="number" placeholder="90" />
+              <FieldInput label="Duration (min)" value={form.runningTime} onChange={f('runningTime')} type="number" placeholder="90" />
               <FieldInput label="Format" value={form.format} onChange={f('format')} placeholder="e.g. DCP, 35mm" />
               <FieldInput label="Original language" value={form.originalsprache} onChange={f('originalsprache')} />
               <FieldInput

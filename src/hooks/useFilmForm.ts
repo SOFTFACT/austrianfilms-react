@@ -17,7 +17,7 @@ export interface FilmFormState {
   kategorie: string
   filmgenre: string
   betreuung: string
-  minuten: string
+  runningTime: string
   format: string
   originalsprache: string
   filmwebsite: string
@@ -33,7 +33,7 @@ function initState(film?: Film): FilmFormState {
     kategorie: film?.kategorie ?? '',
     filmgenre: film?.filmgenre ?? '',
     betreuung: film?.betreuung ?? '',
-    minuten: film?.minuten ? String(film.minuten) : '',
+    runningTime: film?.runningTime ? String(film.runningTime) : '',
     format: film?.format ?? '',
     originalsprache: film?.originalsprache ?? '',
     filmwebsite: film?.filmwebsite ?? '',
@@ -68,6 +68,11 @@ export function useFilmForm(film: Film | undefined, onSaved: () => void) {
       setError('Production year is required and must be between 1900 and 2100.')
       return
     }
+    const minutes = form.runningTime.trim() ? Number(form.runningTime) : null
+    if (minutes !== null && (!Number.isInteger(minutes) || minutes <= 0 || minutes > 999)) {
+      setError('Running time must be whole minutes between 1 and 999.')
+      return
+    }
     setError(null)
     setSaving(true)
     try {
@@ -79,7 +84,7 @@ export function useFilmForm(film: Film | undefined, onSaved: () => void) {
         kategorie: form.kategorie || undefined,
         filmgenre: form.filmgenre || undefined,
         betreuung: form.betreuung || undefined,
-        minuten: form.minuten || undefined,
+        runningTime: minutes,
         format: form.format || undefined,
         originalsprache: form.originalsprache || undefined,
         filmwebsite: form.filmwebsite || undefined,

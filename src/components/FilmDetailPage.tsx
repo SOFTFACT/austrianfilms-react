@@ -91,7 +91,7 @@ function FilmEditView({ film, onDone }: { film: Film; onDone: () => void }) {
           <div className="rounded-lg border border-border bg-card p-4">
             <EditField label="Category" value={form.kategorie} onChange={f('kategorie')} />
             <EditField label="Production year" value={form.produktionsjahr} onChange={f('produktionsjahr')} type="number" required />
-            <EditField label="Duration (min)" value={form.minuten} onChange={f('minuten')} type="number" />
+            <EditField label="Duration (min)" value={form.runningTime} onChange={f('runningTime')} type="number" />
             <EditField label="Format" value={form.format} onChange={f('format')} />
             <EditField label="Original language" value={form.originalsprache} onChange={f('originalsprache')} />
           </div>
@@ -225,7 +225,7 @@ export function FilmDetailPage() {
               <dl>
                 <Field label="Category" value={film.kategorie} />
                 <Field label="Production year" value={film.produktionsjahr || ''} />
-                <Field label="Duration" value={film.minuten ? `${film.minuten} min` : ''} />
+                <Field label="Duration" value={film.runningTime ? `${film.runningTime} min` : ''} />
                 <Field label="Format" value={film.format} />
                 <Field label="Original language" value={film.originalsprache} />
               </dl>

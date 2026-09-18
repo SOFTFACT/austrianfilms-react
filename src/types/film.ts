@@ -23,7 +23,10 @@ export interface Film {
   imageUrl: string
   // Detail-only fields (filmToObjectFull).
   format?: string
-  minuten?: number
+  /** Running time in whole minutes — the value the website shows (JART first, FileMaker second). */
+  runningTime?: number | null
+  /** Original FileMaker running time as typed, read-only. */
+  minuten?: string
   originalsprache?: string
   weltvertrieb?: string
   finanziert?: string
