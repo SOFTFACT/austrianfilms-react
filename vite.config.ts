@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
+import { execSync } from 'node:child_process'
 
 // Vite dev proxy: /api and /mcp -> AustrianFilms 4D server on :8181.
 // Same-origin routing in dev sidesteps CORS and keeps fetch/cookie defaults
@@ -21,7 +22,40 @@ const proxy = {
   '/images': { target: BACKEND, changeOrigin: true },
 }
 
+/**
+ * Commit (and "+dirty" when uncommitted sources are compiled in) plus build
+ * time, inlined via `define` and exposed as <html data-build="…">. Answers
+ * "which build is actually running?" after a deploy without guessing from
+ * bundle hashes. Never throws: a build without git history reports "unknown".
+ */
+function buildStamp(): { commit: string; builtAt: string } {
+  let commit = 'unknown'
+  try {
+    commit = execSync('git rev-parse --short HEAD', { cwd: __dirname, stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim()
+    // Only what enters the bundle counts; a stray untracked note elsewhere
+    // must not mark every build dirty.
+    const dirty = execSync('git status --porcelain -- src public index.html vite.config.ts package.json', {
+      cwd: __dirname,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .toString()
+      .trim()
+    if (dirty) commit += '+dirty'
+  } catch {
+    // no git available — "unknown" is the honest answer
+  }
+  return { commit, builtAt: new Date().toISOString() }
+}
+
+const stamp = buildStamp()
+
 export default defineConfig({
+  define: {
+    __BUILD_COMMIT__: JSON.stringify(stamp.commit),
+    __BUILD_TIME__: JSON.stringify(stamp.builtAt),
+  },
   build: {
     // The build lands in the 4D repo's WebFolder and is committed there:
     // a git pull on the server deploys frontend and backend together, and

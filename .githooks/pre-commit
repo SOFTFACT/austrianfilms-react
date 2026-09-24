@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# Runs the two checks a commit must never break:
+#   - typecheck: src/ (tsc -b) AND e2e/ + tool configs (tsconfig.tools.json)
+#   - test:unit: vitest, src/**/*.test.ts only
+#
+# Bypass with `git commit --no-verify` when you knowingly commit a
+# work-in-progress state. Activated by `npm install` (the "prepare" script
+# points core.hooksPath at this directory). Note: with core.hooksPath set, git
+# reads ONLY this directory — hooks in .git/hooks become inert.
+
+# No npm, no checks — and no blocked commit either. Git started from an IDE or
+# a GUI client often has no nvm-managed npm on PATH; a hook that cannot run
+# must not become a wall that only --no-verify gets through.
+if ! command -v npm >/dev/null 2>&1; then
+  echo "pre-commit: npm not on PATH — skipping typecheck and unit tests."
+  exit 0
+fi
+
+set -e
+
+echo "pre-commit: typecheck…"
+npm run --silent typecheck
+
+echo "pre-commit: unit tests…"
+npm run --silent test:unit
+
+echo "pre-commit: ok"

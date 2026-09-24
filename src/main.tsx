@@ -37,6 +37,9 @@ const queryClient = new QueryClient({
   },
 })
 
+// Which build is running: read it from <html data-build> in the dev tools.
+document.documentElement.dataset.build = `${__BUILD_COMMIT__} ${__BUILD_TIME__}`
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>

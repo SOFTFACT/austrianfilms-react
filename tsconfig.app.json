@@ -19,5 +19,8 @@
     "noFallthroughCasesInSwitch": true,
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Unit tests run under Node (process.env.TZ …) and are type-checked by
+  // tsconfig.tools.json instead.
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }
