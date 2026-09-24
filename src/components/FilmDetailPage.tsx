@@ -291,11 +291,17 @@ export function FilmDetailPage() {
 
       {showDelete && film && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
-          <div className="mt-24 w-full max-w-md rounded-xl border border-border bg-card shadow-xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Delete film"
+            className="mt-24 w-full max-w-md rounded-xl border border-border bg-card shadow-xl"
+          >
             <div className="flex items-center justify-between border-b border-border px-5 py-3">
               <h2 className="text-base font-semibold text-foreground">Delete film</h2>
               <button
                 onClick={() => setShowDelete(false)}
+                aria-label="Close"
                 className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
               >
                 <X className="h-5 w-5" />

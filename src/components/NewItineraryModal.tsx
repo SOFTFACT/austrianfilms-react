@@ -127,10 +127,15 @@ export function NewItineraryModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
-      <div className="mt-10 w-full max-w-lg rounded-xl border border-border bg-card shadow-xl">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="New itinerary"
+        className="mt-10 w-full max-w-lg rounded-xl border border-border bg-card shadow-xl"
+      >
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
           <h2 className="text-base font-semibold text-foreground">New itinerary</h2>
-          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground">
+          <button onClick={onClose} aria-label="Close" className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
