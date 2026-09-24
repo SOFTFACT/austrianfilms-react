@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { RouteErrorBoundary } from './components/ErrorBoundary'
 import { Layout } from './components/Layout'
 import { LoginPage } from './components/LoginPage'
 import { FilmsListPage } from './components/FilmsListPage'
@@ -31,6 +32,7 @@ function DashboardHome() {
 
 function App() {
   return (
+    <RouteErrorBoundary>
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route
@@ -54,6 +56,7 @@ function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </RouteErrorBoundary>
   )
 }
 
