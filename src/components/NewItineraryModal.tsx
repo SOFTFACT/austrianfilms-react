@@ -129,7 +129,6 @@ export function NewItineraryModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
       <div
         role="dialog"
-        aria-modal="true"
         aria-label="New itinerary"
         className="mt-10 w-full max-w-lg rounded-xl border border-border bg-card shadow-xl"
       >

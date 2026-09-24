@@ -293,7 +293,6 @@ export function FilmDetailPage() {
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
           <div
             role="dialog"
-            aria-modal="true"
             aria-label="Delete film"
             className="mt-24 w-full max-w-md rounded-xl border border-border bg-card shadow-xl"
           >

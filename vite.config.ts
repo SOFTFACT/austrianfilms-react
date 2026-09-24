@@ -23,30 +23,41 @@ const proxy = {
 }
 
 /**
- * Commit (and "+dirty" when uncommitted sources are compiled in) plus build
- * time, inlined via `define` and exposed as <html data-build="…">. Answers
- * "which build is actually running?" after a deploy without guessing from
- * bundle hashes. Never throws: a build without git history reports "unknown".
+ * Commit (and "+dirty" when uncommitted sources are compiled in) plus the
+ * COMMIT time, inlined via `define` and exposed as <html data-build="…">.
+ * Answers "which build is actually running?" after a deploy.
+ *
+ * Commit time, not build time: a build-time stamp made every build unique, so
+ * a rebuild of an unchanged commit was never byte-identical and the deploy
+ * script's "dist unchanged — nothing to commit" check could never fire.
+ *
+ * The shared client is linked from ../api4d-react and compiled into this
+ * bundle, so its commit (and dirtiness) is part of the stamp too.
+ *
+ * Never throws: a build without git history reports "unknown".
  */
 function buildStamp(): { commit: string; builtAt: string } {
+  const dir = import.meta.dirname
+  const git = (args: string, cwd = dir) =>
+    execSync(`git ${args}`, { cwd, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()
   let commit = 'unknown'
+  let builtAt = 'unknown'
   try {
-    commit = execSync('git rev-parse --short HEAD', { cwd: __dirname, stdio: ['ignore', 'pipe', 'ignore'] })
-      .toString()
-      .trim()
+    commit = git('rev-parse --short HEAD')
+    builtAt = git('log -1 --format=%cI')
     // Only what enters the bundle counts; a stray untracked note elsewhere
     // must not mark every build dirty.
-    const dirty = execSync('git status --porcelain -- src public index.html vite.config.ts package.json', {
-      cwd: __dirname,
-      stdio: ['ignore', 'pipe', 'ignore'],
-    })
-      .toString()
-      .trim()
-    if (dirty) commit += '+dirty'
+    if (git('status --porcelain -- src public index.html vite.config.ts package.json package-lock.json tsconfig.json tsconfig.app.json')) commit += '+dirty'
   } catch {
     // no git available — "unknown" is the honest answer
   }
-  return { commit, builtAt: new Date().toISOString() }
+  try {
+    const lib = path.resolve(dir, '../api4d-react')
+    commit += ` lib:${git('rev-parse --short HEAD', lib)}${git('status --porcelain -- src package.json', lib) ? '+dirty' : ''}`
+  } catch {
+    // no sibling checkout (e.g. the package came from a registry) — nothing to add
+  }
+  return { commit, builtAt }
 }
 
 const stamp = buildStamp()

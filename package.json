@@ -12,7 +12,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "preview": "vite preview",
-    "prepare": "git config core.hooksPath .githooks"
+    "prepare": "node .githooks/install.mjs"
   },
   "dependencies": {
     "@softfact/api4d-react": "file:../api4d-react",
