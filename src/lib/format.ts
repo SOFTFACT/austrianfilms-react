@@ -18,3 +18,13 @@ export function formatCurrency(value: number, currency = 'EUR'): string {
     return `${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`
   }
 }
+
+/**
+ * Today (or `d`) as YYYY-MM-DD in LOCAL time. `toISOString().slice(0, 10)` is
+ * the UTC date, which is still yesterday in Central Europe between midnight
+ * and 1–2 a.m. (and already tomorrow in the evening west of UTC).
+ */
+export function localIsoDate(d: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}

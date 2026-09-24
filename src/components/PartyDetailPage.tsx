@@ -5,7 +5,7 @@ import { useParty, useUpdateParty, useMarkReviewed } from '../hooks/useParties'
 import { reviewClass } from './partyBits'
 import { KindIcon } from './KindIcon'
 import { cn } from '../lib/utils'
-import { formatDate } from '../lib/format'
+import { formatDate, localIsoDate } from '../lib/format'
 import type { Party, PartyChannel, PartyRelation } from '../types/party'
 
 function Field({ label, value }: { label: string; value: ReactNode }) {
@@ -63,7 +63,7 @@ function titleName(code: string): string {
 }
 
 function validityLabel(r: PartyRelation): string {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localIsoDate()
   if (r.validTo && r.validTo.slice(0, 10) < today) return 'expired'
   if (r.validFrom && r.validFrom.slice(0, 10) > today) return 'not yet'
   return ''

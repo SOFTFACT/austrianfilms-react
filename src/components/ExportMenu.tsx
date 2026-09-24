@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
-import { Download, Loader2, ChevronDown, FileSpreadsheet, FileText } from 'lucide-react'
+import { Download, Loader2, ChevronDown, FileSpreadsheet, FileText, X } from 'lucide-react'
 import { downloadCsv, downloadXlsx, downloadPdf, type ExportColumn } from '../lib/exportTable'
+import { localIsoDate } from '../lib/format'
 
 interface ExportMenuProps<T> {
   /** Filename stem; a `-YYYY-MM-DD.csv` suffix is appended. */
@@ -20,6 +21,8 @@ export function ExportMenu<T>({ filenameBase, columns, loadRows, disabled }: Exp
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [loaded, setLoaded] = useState(0)
+  // Inline, non-blocking feedback after an export: a neutral notice (row cap) or an error.
+  const [message, setMessage] = useState<{ kind: 'notice' | 'error'; text: string } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -35,9 +38,10 @@ export function ExportMenu<T>({ filenameBase, columns, loadRows, disabled }: Exp
     setOpen(false)
     setBusy(true)
     setLoaded(0)
+    setMessage(null)
     try {
       const { rows, truncated } = await loadRows(setLoaded)
-      const stamp = new Date().toISOString().slice(0, 10)
+      const stamp = localIsoDate()
       const name = `${filenameBase}-${stamp}`
       if (format === 'csv') {
         downloadCsv(`${name}.csv`, columns, rows)
@@ -47,13 +51,14 @@ export function ExportMenu<T>({ filenameBase, columns, loadRows, disabled }: Exp
         await downloadPdf(`${name}.pdf`, columns, rows, filenameBase)
       }
       if (truncated) {
-        alert(
-          `Export capped at ${rows.length.toLocaleString()} rows. Narrow the filters for a complete export.`,
-        )
+        setMessage({
+          kind: 'notice',
+          text: `Export capped at ${rows.length.toLocaleString()} rows. Narrow the filters for a complete export.`,
+        })
       }
     } catch (e) {
       console.error('[export]', format, e)
-      alert('Export failed. Please try again.')
+      setMessage({ kind: 'error', text: 'Export failed. Please try again.' })
     } finally {
       setBusy(false)
     }
@@ -89,6 +94,26 @@ export function ExportMenu<T>({ filenameBase, columns, loadRows, disabled }: Exp
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted"
           >
             <FileText className="h-4 w-4 text-muted-foreground" /> Download PDF
+          </button>
+        </div>
+      )}
+      {message && !open && (
+        <div
+          role={message.kind === 'error' ? 'alert' : 'status'}
+          className={`absolute right-0 z-20 mt-1 flex w-72 items-start gap-2 rounded-lg border px-3 py-2 text-sm shadow-lg ${
+            message.kind === 'error'
+              ? 'border-destructive/40 bg-card text-destructive'
+              : 'border-border bg-card text-muted-foreground'
+          }`}
+        >
+          <span className="flex-1">{message.text}</span>
+          <button
+            type="button"
+            onClick={() => setMessage(null)}
+            aria-label="Dismiss"
+            className="shrink-0 rounded p-0.5 hover:bg-muted"
+          >
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
