@@ -186,7 +186,7 @@ export function VirtualGrid<T>({
       {isFetchingNextPage && (
         <div className="flex justify-center py-8 text-sm text-muted-foreground">
           <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
-          Lade weitere…
+          Loading more…
         </div>
       )}
     </div>

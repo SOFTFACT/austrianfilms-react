@@ -147,7 +147,7 @@ function VirtualListInner<T>(
       {isFetchingNextPage && (
         <div className="flex justify-center py-6 text-xs text-muted-foreground">
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-          Lade weitere…
+          Loading more…
         </div>
       )}
     </div>

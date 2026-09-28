@@ -105,3 +105,18 @@ test.describe('phone width', () => {
     })
   }
 })
+
+test('loading the next page says so in English', async ({ page }) => {
+  await openFilms(page)
+  // Hold the next page back so the loading row stays on screen.
+  let held = 0
+  await page.route(/\/api\/v1\/fmfilms\?.*offset=(?!0\b)\d+/, async (route) => {
+    held++
+    await new Promise((r) => setTimeout(r, 1500))
+    await route.continue()
+  })
+  await main(page).evaluate((el) => el.scrollTo(0, el.scrollHeight))
+  await expect(page.getByText('Loading more…')).toBeVisible({ timeout: 10_000 })
+  expect(held).toBeGreaterThan(0) // the interception fired
+  await expect(page.getByText('Lade weitere…')).toHaveCount(0)
+})
