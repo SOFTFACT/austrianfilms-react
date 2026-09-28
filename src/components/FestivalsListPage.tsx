@@ -79,7 +79,7 @@ export function FestivalsListPage() {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-lg font-semibold text-foreground">Festivals</h1>
           <span className="text-sm text-muted-foreground">{total.toLocaleString()} total</span>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center gap-2">
             <div className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <input

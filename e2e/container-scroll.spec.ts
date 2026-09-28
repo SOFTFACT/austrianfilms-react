@@ -75,3 +75,33 @@ test('scrolling the container to the end requests the next page', async ({ page 
   await main(page).evaluate((el) => el.scrollTo(0, el.scrollHeight))
   await nextPage
 })
+
+test.describe('phone width', () => {
+  test.use({ viewport: { width: 390, height: 664 }, hasTouch: true })
+
+  // The frame clips horizontally (the document no longer scrolls sideways),
+  // so every list toolbar control must fit the screen. Before the frame, a
+  // too-wide toolbar merely made the page pannable; now it would hide
+  // "Filters", "Expand all" and the export out of reach.
+  for (const [path, heading] of [
+    ['/films', 'Films'],
+    ['/festivals', 'Festivals'],
+    ['/itineraries', 'Itineraries'],
+    ['/parties', 'Contacts'],
+  ] as const) {
+    test(`${heading}: every toolbar control is within the screen`, async ({ page }) => {
+      await page.goto(path)
+      await expect(page.getByRole('heading', { name: heading })).toBeVisible()
+      const out = await page.evaluate(() => {
+        const bar = document.querySelector('[data-testid="app-scroll"] .sticky')!
+        return [...bar.querySelectorAll('button, input, a')]
+          .map((el) => ({ el, r: el.getBoundingClientRect() }))
+          .filter(({ r }) => r.width > 0 && (r.right > innerWidth + 0.5 || r.left < -0.5))
+          .map(({ el, r }) => `${(el.textContent || el.getAttribute('aria-label') || el.getAttribute('placeholder') || el.tagName).trim()} [${Math.round(r.left)}..${Math.round(r.right)}]`)
+      })
+      // Counter-check that the query sees the toolbar at all.
+      expect(await page.locator('[data-testid="app-scroll"] .sticky button').count()).toBeGreaterThan(0)
+      expect(out).toEqual([])
+    })
+  }
+})

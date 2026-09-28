@@ -102,7 +102,7 @@ export function ItinerariesListPage() {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-lg font-semibold text-foreground">Itineraries</h1>
           <span className="text-sm text-muted-foreground">{total.toLocaleString()} total</span>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center gap-2">
             <button
               onClick={() => setShowNew(true)}
               className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
