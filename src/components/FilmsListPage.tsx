@@ -104,7 +104,7 @@ export function FilmsListPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-12 z-10 border-b border-border bg-muted/95 px-4 py-3 backdrop-blur md:top-0 md:px-6">
+      <div className="sticky top-0 z-10 border-b border-border bg-muted/95 px-4 py-3 backdrop-blur md:px-6">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-lg font-semibold text-foreground">Films</h1>
           <span className="text-sm text-muted-foreground">{total.toLocaleString()} total</span>

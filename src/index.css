@@ -160,3 +160,24 @@
     filter: invert(1);
   }
 }
+
+/* iOS Safari auto-zooms the page when a text control with a font-size below
+   16px gets focus, and never zooms back out -- the app frame is then cropped
+   left and right. Force 16px on touch devices. Deliberately unlayered so it
+   beats the `text-sm` utilities the inputs carry; desktop keeps its 14px. */
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* The app frame is h-svh and the window never scrolls, but iOS still
+   rubber-bands the document when a drag reaches the end of <main> -- or when
+   <main> has too little content to scroll at all -- and takes the tab bar
+   along. Refuse overscroll at the root. */
+html,
+body {
+  overscroll-behavior: none;
+}

@@ -10,6 +10,8 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useAuth } from '@softfact/api4d-react'
+import { ScrollContainerContext, useKeyboardScrollReset, useScrollRestore } from '@softfact/react-kit'
+import { useCallback, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import {
@@ -173,31 +175,54 @@ function NavToggle({ className }: { className?: string }) {
 }
 
 export function Layout() {
+  // The one scroll container, held as an element (see ScrollContainerContext);
+  // position per history entry lives in useScrollRestore.
+  const [mainEl, setMainEl] = useState<HTMLElement | null>(null)
+  const mainRef = useCallback((el: HTMLElement | null) => setMainEl(el), [])
+  useScrollRestore(mainEl)
+  // iOS scrolls the window under the keyboard and leaves it there; undo that.
+  useKeyboardScrollReset()
+
   return (
-    <SidebarProvider>
+    // App frame: fixed viewport height, the window never scrolls. <main> is
+    // the ONE scroll container: sticky page headers pin inside it, and mobile
+    // has a single scroll layer.
+    <SidebarProvider className="h-svh overflow-hidden">
       {/* Desktop: full shadcn sidebar (collapsible icon rail). Mobile: the
           sidebar becomes an off-canvas sheet, opened from the dark top bar;
-          quick nav lives in the fixed bottom tab bar below. */}
+          quick nav lives in the bottom tab bar below. */}
       <AppSidebar />
       {/* min-w-0 lets the main area shrink below its content's min-content
-          width so wide children clip instead of forcing a page-wide scrollbar. */}
-      <SidebarInset className="min-w-0">
-        {/* Mobile dark top bar — fixed; <main> reserves pt-12 to compensate. */}
-        <header className="fixed left-0 right-0 top-0 z-30 flex h-12 items-center justify-between border-b border-sidebar-border bg-sidebar px-3 text-sidebar-foreground md:hidden">
+          width so wide children clip instead of forcing a horizontal
+          scrollbar. h-svh + overflow-hidden bounds the column so <main> gets a
+          definite height to scroll inside. */}
+      <SidebarInset className="h-svh min-w-0 overflow-hidden">
+        {/* Mobile dark top bar — a fixed-height row of the frame (not
+            position:fixed), so <main> starts right below it. */}
+        <header className="flex h-12 shrink-0 items-center justify-between border-b border-sidebar-border bg-sidebar px-3 text-sidebar-foreground md:hidden">
           <NavToggle className="-ml-1" />
           <div className="text-sm font-bold tracking-tight">Austrian Films</div>
           <ThemeToggle className="-mr-1 text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground" />
         </header>
 
-        {/* Main — reserves only the mobile top + bottom bar heights; each page
-            brings its own padding. */}
-        <main className="min-w-0 flex-1 pb-16 pt-12 md:pb-0 md:pt-0">
-          <Outlet />
+        {/* The one scroll container. overscroll-contain keeps a drag that
+            reaches its end from chaining to the document (index.css also
+            locks the root). overflow-x hidden: next to overflow-y auto the
+            two compute to hidden anyway, and <main> IS the scrollport, so
+            sticky children pin against it. */}
+        <main
+          ref={mainRef}
+          data-testid="app-scroll"
+          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain"
+        >
+          <ScrollContainerContext.Provider value={mainEl}>
+            <Outlet />
+          </ScrollContainerContext.Provider>
         </main>
 
         {/* Mobile bottom tab bar. pb-5 = iOS safe-area. */}
         <nav
-          className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-sidebar-border bg-sidebar px-2 pb-5 pt-2 md:hidden"
+          className="flex shrink-0 border-t border-sidebar-border bg-sidebar px-2 pb-5 pt-2 md:hidden"
           aria-label="Primary"
         >
           {navItems.map((item) => (

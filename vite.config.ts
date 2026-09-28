@@ -57,6 +57,12 @@ function buildStamp(): { commit: string; builtAt: string } {
   } catch {
     // no sibling checkout (e.g. the package came from a registry) — nothing to add
   }
+  try {
+    const kit = path.resolve(dir, '../react-kit')
+    commit += ` kit:${git('rev-parse --short HEAD', kit)}${git('status --porcelain -- src package.json', kit) ? '+dirty' : ''}`
+  } catch {
+    // no sibling checkout — nothing to add
+  }
   return { commit, builtAt }
 }
 
@@ -82,7 +88,10 @@ export default defineConfig({
     // SECOND React copy: the app then mounts into an empty root, renders
     // nothing and logs nothing — a white page the dev server never shows.
     // (Hit ecoline-react on 2026-08-16.)
-    dedupe: ['react', 'react-dom', '@tanstack/react-query'],
+    // @softfact/react-kit (linked the same way) adds the router and the
+    // virtualizer: a second react-router means "useLocation() may be used only
+    // in the context of a <Router>" inside the kit's scroll restore.
+    dedupe: ['react', 'react-dom', '@tanstack/react-query', 'react-router-dom', '@tanstack/react-virtual'],
     alias: { '@': path.resolve(import.meta.dirname, './src') },
   },
   server: {

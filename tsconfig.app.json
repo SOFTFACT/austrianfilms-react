@@ -17,7 +17,15 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./src/*"],
+      // @softfact/react-kit (file:../react-kit) carries its own dev copy of the
+      // virtualizer for its tests, and its public types (scrollAdapters) would
+      // be checked against that copy -- a different TanStack version is a type
+      // error here. Point it at THIS app's copy, the same single copy
+      // vite.config.ts dedupes for the bundle.
+      "@tanstack/react-virtual": ["./node_modules/@tanstack/react-virtual"]
+    }
   },
   "include": ["src"],
   // Unit tests run under Node (process.env.TZ …) and are type-checked by

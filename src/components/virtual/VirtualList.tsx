@@ -2,14 +2,15 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   type ForwardedRef,
   type ReactElement,
   type ReactNode,
 } from 'react'
-import { useWindowVirtualizer } from '@tanstack/react-virtual'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { LoaderCircle } from 'lucide-react'
-import { useScrollMargin } from './useScrollMargin'
+import { scrollAdapters, useScrollContainer, useScrollMargin } from '@softfact/react-kit'
 import { cn } from '@/lib/utils'
 
 /** Imperative handle exposed via `ref`. Lets callers drive scroll
@@ -42,8 +43,9 @@ export interface VirtualListProps<T> {
 }
 
 /**
- * Single-column window-virtualized list with optional infinite pagination.
- * Keeps two hard-won details: the scrollMargin handling, and the
+ * Single-column virtualized list with optional infinite pagination. Scrolls
+ * against the app frame's container (ScrollContainerContext) or, outside the
+ * frame, the window. Keeps two hard-won details: the scrollMargin handling, and the
  * transform-vs-top positioning split that avoids the measureElement render
  * loop. Paging state comes from the caller — this component makes no
  * assumption about the API behind it.
@@ -67,13 +69,18 @@ function VirtualListInner<T>(
   ref: ForwardedRef<VirtualListHandle>,
 ) {
   const parentRef = useRef<HTMLDivElement>(null)
-  const scrollMargin = useScrollMargin(parentRef)
+  const container = useScrollContainer()
+  const scrollMargin = useScrollMargin(parentRef, container)
+  // Stable adapters: rebuilt per render they would hand TanStack fresh closures
+  // on every scroll-driven re-render.
+  const adapters = useMemo(() => scrollAdapters(container), [container])
 
-  const virtualizer = useWindowVirtualizer({
+  const virtualizer = useVirtualizer({
     count: items.length,
     estimateSize: () => estimateSize,
     overscan,
     scrollMargin,
+    ...adapters,
   })
 
   useImperativeHandle(

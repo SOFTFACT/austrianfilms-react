@@ -37,7 +37,8 @@ test('scrolling to the end requests the next page', async ({ page }) => {
     { timeout: 30_000 },
   )
 
-  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  // The window never scrolls in the app frame; <main> is the scroll container.
+  await page.getByTestId('app-scroll').evaluate((el) => el.scrollTo(0, el.scrollHeight))
 
   await nextPage
 })

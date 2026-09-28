@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext'
 import { BASE } from '@/lib/base'
 import './index.css'
 import App from './App.tsx'
+import { configureScrollRestore } from '@softfact/react-kit'
 
 // AustrianFilms-specific API4D-library configuration. Same shared lib as
 // MDS-Praxis (and, going forward, ECOline) — fixes to lib/api4d benefit all.
@@ -39,6 +40,9 @@ const queryClient = new QueryClient({
 
 // Which build is running: read it from <html data-build> in the dev tools.
 document.documentElement.dataset.build = `${__BUILD_COMMIT__} ${__BUILD_TIME__}`
+
+// Before the first render: the position store is loaded on first use.
+configureScrollRestore({ storageKey: 'austrianfilms_scroll_positions' })
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
